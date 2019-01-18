@@ -21,10 +21,16 @@ class ProviderTest extends TestCase
     /** @var GuzzleHttp\Handler\MockHandler */
     protected $mock;
 
+    /** @var array */
+    protected $container;
+
     protected function setUp(): void
     {
+        $this->container = [];
+        $history = GuzzleHttp\Middleware::history($this->container);
         $this->mock = new GuzzleHttp\Handler\MockHandler();
         $stack = GuzzleHttp\HandlerStack::create($this->mock);
+        $stack->push($history);
         $this->fakeProvider = new Authorization\Provider(
             new GuzzleHttp\Client(['handler' => $stack,])
         );
@@ -45,6 +51,17 @@ class ProviderTest extends TestCase
             static::DOMAIN,
             static::API_KEY
         ));
+
+        /** @var GuzzleHttp\Psr7\Request $sentRequest */
+        $sentRequest = $this->container[0]['request'];
+        $this->assertEquals(
+            '{"domain":"' . static::DOMAIN . '","apiKey":"' . static::API_KEY . '"}',
+            (string)$sentRequest->getBody()
+        );
+        $this->assertEquals(
+            "https://" . static::DOMAIN . "/rest/security/authorize",
+            (string)$sentRequest->getUri()
+        );
 
         $this->assertEquals(
             [

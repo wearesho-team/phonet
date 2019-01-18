@@ -36,7 +36,7 @@ interface ServiceInterface
      * @param int $limit Maximum number of calls possible for the sample (can not exceed 50)
      * @param int $offset Sample offset
      *
-     * @return Data\Collection\Call
+     * @return Data\Collection\CompleteCall
      */
     public function companyCalls(
         \DateTimeInterface $from,
@@ -44,7 +44,7 @@ interface ServiceInterface
         Data\Collection\Direction $directions,
         int $limit = 50,
         int $offset = 0
-    ): Data\Collection\Call;
+    ): Data\Collection\CompleteCall;
 
     /**
      * Getting a list of calls to call back
@@ -55,7 +55,7 @@ interface ServiceInterface
      * @param int $limit Maximum number of calls possible for the sample (can not exceed 50)
      * @param int $offset Sample offset
      *
-     * @return mixed
+     * @return Data\Collection\CompleteCall
      */
     public function missedCalls(
         \DateTimeInterface $from,
@@ -63,7 +63,7 @@ interface ServiceInterface
         Data\Collection\Direction $directions,
         int $limit = 50,
         int $offset = 0
-    ); // todo: add return type
+    ): Data\Collection\CompleteCall;
 
     /**
      * Getting a list of staff calls made
@@ -74,7 +74,7 @@ interface ServiceInterface
      * @param int $limit Maximum number of calls possible for the sample (can not exceed 50)
      * @param int $offset Sample offset
      *
-     * @return mixed
+     * @return Data\Collection\CompleteCall
      */
     public function usersCalls(
         \DateTimeInterface $from,
@@ -82,7 +82,7 @@ interface ServiceInterface
         Data\Collection\Direction $directions = null,
         int $limit = 50,
         int $offset = 0
-    ); // todo: add return type
+    ): Data\Collection\CompleteCall;
 
     /**
      * Getting a list of users
