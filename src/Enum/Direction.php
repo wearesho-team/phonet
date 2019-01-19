@@ -7,6 +7,12 @@ use MyCLabs\Enum\Enum;
 /**
  * Class Direction
  * @package Wearesho\Phonet\Enum
+ *
+ * @method static Direction INTERNAL()
+ * @method static Direction OUT()
+ * @method static Direction IN()
+ * @method static Direction PAUSE_ON()
+ * @method static Direction PAUSE_OFF()
  */
 final class Direction extends Enum
 {

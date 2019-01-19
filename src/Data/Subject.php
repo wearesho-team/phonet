@@ -6,7 +6,7 @@ namespace Wearesho\Phonet\Data;
  * Class Subject
  * @package Wearesho\Phonet\Data
  */
-class Subject
+class Subject implements \JsonSerializable
 {
     /** @var string|null */
     protected $id;
@@ -40,6 +40,18 @@ class Subject
         $this->company = $company;
         $this->uri = $uri;
         $this->priority = $priority;
+    }
+
+    public function jsonSerialize(): array
+    {
+        return [
+            'id' => $this->id,
+            'name' => $this->name,
+            'number' => $this->number,
+            'company' => $this->company,
+            'uri' => $this->uri,
+            'priority' => $this->priority,
+        ];
     }
 
     public function getId(): ?string

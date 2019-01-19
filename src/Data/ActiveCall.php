@@ -31,7 +31,7 @@ class ActiveCall extends BaseCall
 
     public function __construct(
         string $uuid,
-        string $parentUuid,
+        ?string $parentUuid,
         Carbon $dialAt,
         ?Carbon $bridgeAt,
         Enum\Direction $direction,
@@ -50,6 +50,23 @@ class ActiveCall extends BaseCall
         $this->trunkName = $trunkName;
 
         parent::__construct($uuid, $parentUuid, $direction, $employeeCaller, $employeeCallTaker);
+    }
+
+    public function jsonSerialize(): array
+    {
+        return [
+            'uuid' => $this->uuid,
+            'parentUuid' => $this->parentUuid,
+            'dialAt' => $this->dialAt,
+            'bridgeAt' => $this->bridgeAt,
+            'direction' => $this->direction,
+            'lastEvent' => $this->lastEvent,
+            'employeeCaller' => $this->employeeCaller,
+            'employeeCallTaker' => $this->employeeCallTaker,
+            'subjects' => $this->subjects,
+            'trunkNumber' => $this->trunkNumber,
+            'trunkName' => $this->trunkName,
+        ];
     }
 
     public function getDialAt(): Carbon

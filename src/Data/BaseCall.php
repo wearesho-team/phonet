@@ -8,7 +8,7 @@ use Wearesho\Phonet\Enum\Direction;
  * Class Call
  * @package Wearesho\Phonet\Data
  */
-abstract class BaseCall
+abstract class BaseCall implements \JsonSerializable
 {
     /** @var string */
     protected $uuid;

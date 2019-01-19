@@ -6,7 +6,7 @@ namespace Wearesho\Phonet\Data;
  * Class Employee
  * @package Wearesho\Phonet\Data
  */
-class Employee
+class Employee implements \JsonSerializable
 {
     /** @var int */
     protected $id;
@@ -35,6 +35,17 @@ class Employee
         $this->displayName = $displayName;
         $this->type = $type;
         $this->email = $email;
+    }
+
+    public function jsonSerialize(): array
+    {
+        return [
+            'id' => $this->id,
+            'internalNumber' => $this->internalNumber,
+            'displayName' => $this->displayName,
+            'type' => $this->type,
+            'email' => $this->email,
+        ];
     }
 
     public function getId(): int

@@ -97,11 +97,13 @@ class Service implements ServiceInterface
     {
         $request = new GuzzleHttp\Psr7\Request('GET', $this->formUri("rest/calls/active/v3"));
 
+        $json = \json_decode((string)$this->send($request)->getBody(), true);
+
         return new Data\Collection\ActiveCall(\array_map(function (array $call): Data\ActiveCall {
             $bridgeAt = $call[static::BRIDGE_AT];
             $caller = $call[static::CALLER];
             $employeeCallTaker = $call[static::EMPLOYEE_CALL_TAKER];
-            $subjects = $call[static::SUBJECT_COLLECTION];
+            $subjects = $call[static::SUBJECT_COLLECTION] ?? [];
 
             return new Data\ActiveCall(
                 $call[static::UUID],
@@ -118,20 +120,22 @@ class Service implements ServiceInterface
                         $employeeCallTaker[static::DISPLAY_NAME]
                     )
                     : null,
-                new Data\Collection\Subject(\array_map(function (array $subject): Data\Subject {
-                    return new Data\Subject(
-                        $subject[static::ID],
-                        $subject[static::NAME],
-                        $subject[static::NUMBER],
-                        $subject[static::COMPANY_NAME],
-                        $subject[static::URL],
-                        isset($subject[static::PRIORITY]) ? $subject[static::PRIORITY] : null
-                    );
-                }, $subjects)),
+                $subjects
+                    ? new Data\Collection\Subject(\array_map(function (array $subject): Data\Subject {
+                        return new Data\Subject(
+                            $subject[static::ID],
+                            $subject[static::NAME],
+                            $subject[static::NUMBER],
+                            $subject[static::COMPANY_NAME],
+                            $subject[static::URL],
+                            isset($subject[static::PRIORITY]) ? $subject[static::PRIORITY] : null
+                        );
+                    }, $subjects))
+                    : null,
                 $call[static::TRUNK_NUMBER],
                 $call[static::TRUNK_NAME]
             );
-        }, \json_decode((string)$this->send($request)->getBody(), true)));
+        }, $json));
     }
 
     /**
