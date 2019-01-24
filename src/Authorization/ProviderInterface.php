@@ -3,6 +3,7 @@
 namespace Wearesho\Phonet\Authorization;
 
 use GuzzleHttp\Cookie\CookieJarInterface;
+use Wearesho\Phonet\ConfigInterface;
 
 /**
  * Interface ProviderInterface

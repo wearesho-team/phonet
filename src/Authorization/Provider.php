@@ -3,6 +3,7 @@
 namespace Wearesho\Phonet\Authorization;
 
 use GuzzleHttp;
+use Wearesho\Phonet\ConfigInterface;
 
 /**
  * Class Provider
@@ -10,14 +11,6 @@ use GuzzleHttp;
  */
 class Provider implements ProviderInterface
 {
-    /** @var GuzzleHttp\ClientInterface */
-    protected $client;
-
-    public function __construct(GuzzleHttp\ClientInterface $client)
-    {
-        $this->client = $client;
-    }
-
     /**
      * @param ConfigInterface $config
      *
@@ -39,7 +32,7 @@ class Provider implements ProviderInterface
             ])
         );
 
-        $response = $this->client->send($request);
+        $response = $config->client()->send($request);
 
         return GuzzleHttp\Cookie\CookieJar::fromArray($response->getHeader('set-cookie'), $config->getDomain());
     }

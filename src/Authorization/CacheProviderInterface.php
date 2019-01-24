@@ -3,6 +3,7 @@
 namespace Wearesho\Phonet\Authorization;
 
 use GuzzleHttp;
+use Wearesho\Phonet\ConfigInterface;
 
 /**
  * Interface CacheProviderInterface

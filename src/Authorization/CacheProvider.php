@@ -4,6 +4,7 @@ namespace Wearesho\Phonet\Authorization;
 
 use GuzzleHttp;
 use Psr\SimpleCache\CacheInterface;
+use Wearesho\Phonet\ConfigInterface;
 
 /**
  * Class CacheProvider
@@ -14,11 +15,9 @@ class CacheProvider extends Provider implements CacheProviderInterface
     /** @var CacheInterface */
     protected $cache;
 
-    public function __construct(CacheInterface $cache, GuzzleHttp\ClientInterface $client)
+    public function __construct(CacheInterface $cache)
     {
         $this->cache = $cache;
-
-        parent::__construct($client);
     }
 
     /**

@@ -2,8 +2,10 @@
 
 namespace Wearesho\Phonet\Tests\Unit\Authorization;
 
+use GuzzleHttp\Client;
 use PHPUnit\Framework\TestCase;
-use Wearesho\Phonet\Authorization\Config;
+use Wearesho\Phonet\Authorization\Provider;
+use Wearesho\Phonet\Config;
 
 /**
  * Class ConfigTest
@@ -19,7 +21,7 @@ class ConfigTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->fakeConfig = new Config(static::DOMAIN, static::API_KEY);
+        $this->fakeConfig = new Config(new Client(), new Provider(), static::DOMAIN, static::API_KEY);
     }
 
     public function testGetDomain(): void
@@ -30,5 +32,15 @@ class ConfigTest extends TestCase
     public function testGetApiKey(): void
     {
         $this->assertEquals(static::API_KEY, $this->fakeConfig->getApiKey());
+    }
+
+    public function testGetClient(): void
+    {
+        $this->assertEquals(new Client(), $this->fakeConfig->client());
+    }
+
+    public function testGetProvider(): void
+    {
+        $this->assertEquals(new Provider(), $this->fakeConfig->provider());
     }
 }

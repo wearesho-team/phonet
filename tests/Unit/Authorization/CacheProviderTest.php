@@ -5,7 +5,7 @@ namespace Wearesho\Phonet\Tests\Unit\Authorization;
 use chillerlan\SimpleCache;
 use GuzzleHttp;
 use PHPUnit\Framework\TestCase;
-use Wearesho\Phonet\Authorization;
+use Wearesho\Phonet;
 
 /**
  * Class CacheProviderTest
@@ -16,16 +16,13 @@ class CacheProviderTest extends TestCase
     protected const DOMAIN = 'test4.domain.com.ua';
     protected const API_KEY = 'test-api-key';
 
-    /** @var Authorization\CacheProvider */
-    protected $fakeProvider;
-
     /** @var array */
     protected $container = [];
 
     /** @var GuzzleHttp\Handler\MockHandler */
     protected $mock;
 
-    /** @var Authorization\ConfigInterface */
+    /** @var Phonet\ConfigInterface */
     protected $config;
 
     /** @var GuzzleHttp\ClientInterface */
@@ -39,14 +36,19 @@ class CacheProviderTest extends TestCase
         $stack = GuzzleHttp\HandlerStack::create($this->mock);
         $stack->push($history);
         $this->client = new GuzzleHttp\Client(['handler' => $stack,]);
-        $this->config = new Authorization\Config(static::DOMAIN, static::API_KEY);
     }
 
     public function testProvide(): void
     {
-        $this->fakeProvider = new Authorization\CacheProvider(
-            new SimpleCache\Cache(new SimpleCache\Drivers\MemoryCacheDriver()),
-            $this->client
+        $this->config = new Phonet\Config(
+            $this->client,
+            new Phonet\Authorization\CacheProvider(
+                new SimpleCache\Cache(
+                    new SimpleCache\Drivers\MemoryCacheDriver()
+                )
+            ),
+            static::DOMAIN,
+            static::API_KEY
         );
 
         $this->mock->append(
@@ -58,10 +60,10 @@ class CacheProviderTest extends TestCase
         );
 
         /** @noinspection PhpUnhandledExceptionInspection */
-        $cookie = $this->fakeProvider->provide($this->config);
+        $cookie = $this->config->provider()->provide($this->config);
 
         /** @noinspection PhpUnhandledExceptionInspection */
-        $duplicatedCookie = $this->fakeProvider->provide($this->config);
+        $duplicatedCookie = $this->config->provider()->provide($this->config);
 
         $this->assertEquals($cookie, $duplicatedCookie);
         $this->assertCount(1, $this->container, 'Only one HTTP request should be done');
@@ -69,15 +71,19 @@ class CacheProviderTest extends TestCase
 
     public function testFailedCache(): void
     {
-        $this->fakeProvider = new Authorization\CacheProvider(
-            new SimpleCache\Cache(new class extends SimpleCache\Drivers\MemoryCacheDriver
-            {
-                public function set(string $key, $value, int $ttl = null): bool
+        $this->config = new Phonet\Config(
+            $this->client,
+            new Phonet\Authorization\CacheProvider(
+                new SimpleCache\Cache(new class extends SimpleCache\Drivers\MemoryCacheDriver
                 {
-                    return false;
-                }
-            }),
-            $this->client
+                    public function set(string $key, $value, int $ttl = null): bool
+                    {
+                        return false;
+                    }
+                })
+            ),
+            static::DOMAIN,
+            static::API_KEY
         );
 
         $this->mock->append(
@@ -88,22 +94,25 @@ class CacheProviderTest extends TestCase
             ])
         );
 
-        $this->expectException(Authorization\CacheException::class);
+        $this->expectException(Phonet\Authorization\CacheException::class);
 
         /** @noinspection PhpUnhandledExceptionInspection */
-        $this->fakeProvider->provide($this->config);
+        $this->config->provider()->provide($this->config);
     }
 
     public function testOverrideWithForceProvide(): void
     {
         $cache = new SimpleCache\Cache(new SimpleCache\Drivers\MemoryCacheDriver());
+        $this->config = new Phonet\Config(
+            $this->client,
+            new Phonet\Authorization\CacheProvider($cache),
+            static::DOMAIN,
+            static::API_KEY
+        );
+        /** @noinspection PhpUnhandledExceptionInspection */
         $cache->set(
             "phonet.authorization." . sha1($this->config->getDomain() . $this->config->getApiKey()),
             'invalid-data'
-        );
-        $this->fakeProvider = new Authorization\CacheProvider(
-            $cache,
-            $this->client
         );
 
         $this->mock->append(
@@ -115,10 +124,10 @@ class CacheProviderTest extends TestCase
         );
 
         /** @noinspection PhpUnhandledExceptionInspection */
-        $cookie = $this->fakeProvider->provide($this->config);
+        $cookie = $this->config->provider()->provide($this->config);
 
         /** @noinspection PhpUnhandledExceptionInspection */
-        $duplicatedCookie = $this->fakeProvider->provide($this->config);
+        $duplicatedCookie = $this->config->provider()->provide($this->config);
 
         $this->assertEquals($cookie, $duplicatedCookie);
         $this->assertCount(1, $this->container, 'Only one HTTP request should be done');

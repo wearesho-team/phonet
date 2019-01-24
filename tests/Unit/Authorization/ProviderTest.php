@@ -4,7 +4,7 @@ namespace Wearesho\Phonet\Tests\Unit\Authorization;
 
 use PHPUnit\Framework\TestCase;
 use GuzzleHttp;
-use Wearesho\Phonet\Authorization;
+use Wearesho\Phonet;
 
 /**
  * Class ProviderTest
@@ -15,7 +15,7 @@ class ProviderTest extends TestCase
     protected const DOMAIN = 'test4.domain.com.ua';
     protected const API_KEY = 'test-api-key';
 
-    /** @var Authorization\Provider */
+    /** @var Phonet\Authorization\Provider */
     protected $fakeProvider;
 
     /** @var GuzzleHttp\Handler\MockHandler */
@@ -24,6 +24,9 @@ class ProviderTest extends TestCase
     /** @var array */
     protected $container;
 
+    /** @var Phonet\ConfigInterface */
+    protected $config;
+
     protected function setUp(): void
     {
         $this->container = [];
@@ -31,8 +34,11 @@ class ProviderTest extends TestCase
         $this->mock = new GuzzleHttp\Handler\MockHandler();
         $stack = GuzzleHttp\HandlerStack::create($this->mock);
         $stack->push($history);
-        $this->fakeProvider = new Authorization\Provider(
-            new GuzzleHttp\Client(['handler' => $stack,])
+        $this->config = new Phonet\Config(
+            new GuzzleHttp\Client(['handler' => $stack,]),
+            new Phonet\Authorization\Provider(),
+            static::DOMAIN,
+            static::API_KEY
         );
     }
 
@@ -47,10 +53,7 @@ class ProviderTest extends TestCase
         );
 
         /** @noinspection PhpUnhandledExceptionInspection */
-        $cookies = $this->fakeProvider->provide(new Authorization\Config(
-            static::DOMAIN,
-            static::API_KEY
-        ));
+        $cookies = $this->config->provider()->provide($this->config);
 
         /** @var GuzzleHttp\Psr7\Request $sentRequest */
         $sentRequest = $this->container[0]['request'];

@@ -2,9 +2,11 @@
 
 namespace Wearesho\Phonet\Tests\Unit\Authorization;
 
+use GuzzleHttp\Client;
 use Horat1us\Environment\Exception;
 use PHPUnit\Framework\TestCase;
-use Wearesho\Phonet\Authorization\EnvironmentConfig;
+use Wearesho\Phonet\Authorization\Provider;
+use Wearesho\Phonet\EnvironmentConfig;
 
 /**
  * Class EnvironmentConfigTest
@@ -20,7 +22,7 @@ class EnvironmentConfigTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->fakeEnvironmentConfig = new EnvironmentConfig();
+        $this->fakeEnvironmentConfig = new EnvironmentConfig(new Client(), new Provider());
     }
 
     protected function tearDown(): void

@@ -1,10 +1,10 @@
 <?php
 
-namespace Wearesho\Phonet\Authorization;
+namespace Wearesho\Phonet;
 
 /**
  * Trait EnvironmentConfigTrait
- * @package Wearesho\Phonet\Authorization
+ * @package Wearesho\Phonet
  */
 trait EnvironmentConfigTrait
 {
