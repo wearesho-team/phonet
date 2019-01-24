@@ -189,10 +189,8 @@ class RepositoryTest extends ModelTestCase
      *
      * @param string $api
      * @param string $method
-     *
-     * @return Phonet\Data\Collection\CompleteCall
      */
-    public function testSuccessCompleteCalls(string $api, string $method): Phonet\Data\Collection\CompleteCall
+    public function testSuccessCompleteCalls(string $api, string $method): void
     {
         $this->mock->append(
             new GuzzleHttp\Psr7\Response(200, ['set-cookie' => ['JSESSIONID' => 'test-id']]),
@@ -220,19 +218,13 @@ class RepositoryTest extends ModelTestCase
             (string)$sentRequest->getUri()
         );
 
-        return $calls;
+        $this->parseCompleteCalls($calls);
     }
 
     /**
      * @dataProvider completeCallsProvider
-     *
-     * @param string $api
-     * @param string $method
-     *
-     * @return Phonet\Data\Collection\CompleteCall
-     * @throws \Psr\SimpleCache\InvalidArgumentException
      */
-    public function testForceProvideCompleteCalls(string $api, string $method): Phonet\Data\Collection\CompleteCall
+    public function testForceProvideCompleteCalls(string $api, string $method): void
     {
         /** @noinspection PhpUnhandledExceptionInspection */
         $this->cache->set(
@@ -275,7 +267,7 @@ class RepositoryTest extends ModelTestCase
             $this->cache->get($cacheKey)
         );
 
-        return $calls;
+        $this->parseCompleteCalls($calls);
     }
 
     /**
@@ -348,13 +340,7 @@ class RepositoryTest extends ModelTestCase
         ];
     }
 
-    /**
-     * @depends testSuccessCompleteCalls
-     * @depends testForceProvideCompleteCalls
-     *
-     * @param Phonet\Data\Collection\CompleteCall $completeCalls
-     */
-    public function testParseCompleteCalls(Phonet\Data\Collection\CompleteCall $completeCalls): void
+    protected function parseCompleteCalls(Phonet\Data\Collection\CompleteCall $completeCalls): void
     {
         $this->assertCount(2, $completeCalls);
 
