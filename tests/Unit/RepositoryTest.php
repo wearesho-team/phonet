@@ -2,6 +2,7 @@
 
 namespace Wearesho\Phonet\Tests\Unit;
 
+use Carbon\Carbon;
 use GuzzleHttp;
 use Wearesho\Phonet;
 
@@ -181,5 +182,139 @@ class RepositoryTest extends ModelTestCase
         $this->assertNull($call->getSubjects());
         $this->assertEquals('+380442246595', $call->getTrunkNumber());
         $this->assertEquals('+380442246595', $call->getTrunkName());
+    }
+
+    public function testSuccessMissedCalls(): Phonet\Data\Collection\CompleteCall
+    {
+        $missedCalls = \file_get_contents(\dirname(__DIR__) . '/Mock/MissedCalls.json');
+        $this->mock->append(
+            new GuzzleHttp\Psr7\Response(200, ['set-cookie' => ['JSESSIONID' => 'test-id']]),
+            new GuzzleHttp\Psr7\Response(200, [], $missedCalls)
+        );
+
+        /** @noinspection PhpUnhandledExceptionInspection */
+        $missedCalls = $this->repository->missedCalls(
+            Carbon::now(),
+            Carbon::now()->addMinute(1),
+            new Phonet\Data\Collection\Direction([
+                Phonet\Enum\Direction::OUT(),
+            ]),
+            10,
+            0
+        );
+
+        $authRequest = $this->container[0]['request'];
+        $this->assertJsonStringEqualsJsonString(
+            \json_encode(['domain' => static::DOMAIN, 'apiKey' => static::API_KEY]),
+            (string)$authRequest->getBody()
+        );
+
+        /** @var GuzzleHttp\Psr7\Request $sentRequest */
+        $sentRequest = $this->container[1]['request'];
+
+        $this->assertEquals(
+            ["JSESSIONID=test-id"],
+            $sentRequest->getHeader('Cookie')
+        );
+        $this->assertEquals(
+            'https://' . static::DOMAIN . '/rest/calls/missed.api',
+            (string)$sentRequest->getUri()
+        );
+
+        return $missedCalls;
+    }
+
+    public function testForceProvideForSuccessMissedCalls(): Phonet\Data\Collection\CompleteCall
+    {
+        /** @noinspection PhpUnhandledExceptionInspection */
+        $this->cache->set(
+            "phonet.authorization." . sha1($this->config->getDomain() . $this->config->getApiKey()),
+            GuzzleHttp\Cookie\CookieJar::fromArray(['JSESSIONID' => 'test-id'], $this->config->getDomain())
+        );
+        $missedCalls = \file_get_contents(\dirname(__DIR__) . '/Mock/MissedCalls.json');
+        $this->mock->append(
+            new GuzzleHttp\Psr7\Response(403, [], 'Some error'),
+            new GuzzleHttp\Psr7\Response(200, ['set-cookie' => ['JSESSIONID' => 'test-id']]),
+            new GuzzleHttp\Psr7\Response(200, [], $missedCalls)
+        );
+
+        /** @noinspection PhpUnhandledExceptionInspection */
+        $missedCalls = $this->repository->missedCalls(
+            Carbon::now(),
+            Carbon::now()->addMinute(1),
+            new Phonet\Data\Collection\Direction([
+                Phonet\Enum\Direction::OUT(),
+            ]),
+            10,
+            0
+        );
+
+        $authRequest = $this->container[1]['request'];
+        $this->assertJsonStringEqualsJsonString(
+            \json_encode(['domain' => static::DOMAIN, 'apiKey' => static::API_KEY]),
+            (string)$authRequest->getBody()
+        );
+
+        /** @var GuzzleHttp\Psr7\Request $sentRequest */
+        $sentRequest = $this->container[2]['request'];
+
+        $this->assertEquals(
+            ["JSESSIONID=test-id"],
+            $sentRequest->getHeader('Cookie')
+        );
+        $this->assertEquals(
+            'https://' . static::DOMAIN . '/rest/calls/missed.api',
+            (string)$sentRequest->getUri()
+        );
+        $cacheKey = "phonet.authorization." . sha1($this->config->getDomain() . $this->config->getApiKey());
+        /** @noinspection PhpUnhandledExceptionInspection */
+        $this->assertTrue($this->cache->has($cacheKey));
+        /** @noinspection PhpUnhandledExceptionInspection */
+        $this->assertEquals(
+            GuzzleHttp\Cookie\CookieJar::fromArray(['JSESSIONID' => 'test-id'], $this->config->getDomain()),
+            $this->cache->get($cacheKey)
+        );
+
+        return $missedCalls;
+    }
+
+    /**
+     * @depends testSuccessMissedCalls
+     * @depends testForceProvideForSuccessMissedCalls
+     *
+     * @param Phonet\Data\Collection\CompleteCall $completeCalls
+     */
+    public function testParseMissedCalls(Phonet\Data\Collection\CompleteCall $completeCalls): void
+    {
+        $this->assertCount(2, $completeCalls);
+
+        /** @var Phonet\Data\CompleteCall $missedCall */
+        $missedCall = $completeCalls[0];
+
+        $this->assertEquals("d267486f-a539-45dd-c5f5-e735a5870b80", $missedCall->getParentUuid());
+        $this->assertEquals("f457486f-a539-45dd-c5f5-e735a5870b92", $missedCall->getUuid());
+        $this->assertEquals(1435319298470, $missedCall->getEndAt()->timestamp);
+        $this->assertEquals(Phonet\Enum\Direction::INTERNAL(), $missedCall->getDirection());
+        $this->assertNull($missedCall->getSubjectName());
+        $this->assertNull($missedCall->getSubjectNumber());
+        $employeeCaller = $missedCall->getEmployeeCaller();
+        $this->assertEquals(36, $employeeCaller->getId());
+        $this->assertEquals(1, $employeeCaller->getType());
+        $this->assertEquals("Васильев Андрей", $employeeCaller->getDisplayName());
+        $this->assertEquals("001", $employeeCaller->getInternalNumber());
+        $employeeCallTaker = $missedCall->getEmployeeCallTaker();
+        $this->assertEquals(19, $employeeCallTaker->getId());
+        $this->assertEquals(1, $employeeCallTaker->getType());
+        $this->assertEquals("Operator 4", $employeeCallTaker->getDisplayName());
+        $this->assertEquals("004", $employeeCallTaker->getInternalNumber());
+        $this->assertEquals(3, $missedCall->getBillSecs());
+        $this->assertEquals(4, $missedCall->getDuration());
+        $this->assertEquals(0, $missedCall->getDisposition());
+        $this->assertEquals(null, $missedCall->getTransferHistory());
+        $this->assertEquals(
+            "https://podium.betell.com.ua/rest/public/calls/f457486f-a539-45dd-c5f5-e735a5870b92/audio ",
+            $missedCall->getAudioRecUrl()
+        );
+        $this->assertNull($missedCall->getTrunk());
     }
 }

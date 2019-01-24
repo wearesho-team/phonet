@@ -48,10 +48,10 @@ class CompleteCall extends BaseCall
         ?string $subjectNumber,
         ?string $subjectName,
         int $disposition,
-        ?int $trunk,
+        ?string $trunk,
         int $billSecs,
         int $duration,
-        string $transferHistory,
+        ?string $transferHistory,
         ?string $audioRecUrl
     ) {
         $this->endAt = $endAt;
@@ -65,6 +65,21 @@ class CompleteCall extends BaseCall
         $this->audioRecUrl = $audioRecUrl;
 
         parent::__construct($uuid, $parentUuid, $direction, $employeeCaller, $employeeCallTaker);
+    }
+
+    public function jsonSerialize(): array
+    {
+        return [
+            'endAt' => $this->endAt,
+            'subjectNumber' => $this->subjectNumber,
+            'subjectName' => $this->subjectName,
+            'disposition' => $this->disposition,
+            'trunk' => $this->trunk,
+            'billSecs' => $this->billSecs,
+            'duration' => $this->duration,
+            'transferHistory' => $this->transferHistory,
+            'audioRecUrl' => $this->audioRecUrl,
+        ];
     }
 
     public function getEndAt(): Carbon
@@ -102,7 +117,7 @@ class CompleteCall extends BaseCall
         return $this->duration;
     }
 
-    public function getTransferHistory(): string
+    public function getTransferHistory(): ?string
     {
         return $this->transferHistory;
     }

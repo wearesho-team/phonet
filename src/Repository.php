@@ -129,22 +129,22 @@ class Repository extends Model
 
     /**
      * @param string $api
-     * @param $from
-     * @param $to
-     * @param $directions
-     * @param $limit
-     * @param $offset
+     * @param \DateTimeInterface $from
+     * @param \DateTimeInterface $to
+     * @param Data\Collection\Direction $directions
+     * @param int $limit
+     * @param int $offset
      *
      * @return Data\Collection\CompleteCall
      * @throws GuzzleHttp\Exception\GuzzleException
      */
     protected function getCompleteCalls(
         string $api,
-        $from,
-        $to,
-        $directions,
-        $limit,
-        $offset
+        \DateTimeInterface $from,
+        \DateTimeInterface $to,
+        Data\Collection\Direction $directions,
+        int $limit,
+        int $offset
     ): Data\Collection\CompleteCall {
         $this->validateLimit($limit);
         $this->validateOffset($offset);
@@ -192,7 +192,7 @@ class Repository extends Model
 
             return new Data\CompleteCall(
                 $call[static::UUID],
-                $call[static::PARENT_UUID],
+                \array_key_exists(static::PARENT_UUID, $call) ? $call[static::PARENT_UUID] : null,
                 new Enum\Direction($call[static::DIRECTION]),
                 new Data\Employee(
                     $caller[static::ID],

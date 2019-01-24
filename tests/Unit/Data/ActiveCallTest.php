@@ -251,9 +251,59 @@ class ActiveCallTest extends TestCase
      * @depends testGetTrunkNumber
      *
      * @param Phonet\Data\ActiveCall $activeCall
+     *
+     * @return Phonet\Data\ActiveCall
      */
-    public function testGetTrunkName(Phonet\Data\ActiveCall $activeCall): void
+    public function testGetTrunkName(Phonet\Data\ActiveCall $activeCall): Phonet\Data\ActiveCall
     {
         $this->assertEquals(static::TRUNK_NAME, $activeCall->getTrunkName());
+
+        return $activeCall;
+    }
+
+    /**
+     * @depends testGetTrunkName
+     *
+     * @param Phonet\Data\ActiveCall $activeCall
+     */
+    public function testJsonSerialize(Phonet\Data\ActiveCall $activeCall): void
+    {
+        $this->assertEquals(
+            [
+                'uuid' => static::UUID,
+                'parentUuid' => static::PARENT_UUID,
+                'dialAt' => Carbon::make(static::DIAL_AT),
+                'bridgeAt' => Carbon::make(static::BRIDGE_AT),
+                'direction' => Phonet\Enum\Direction::IN(),
+                'lastEvent' => Phonet\Enum\LastEvent::HANGUP(),
+                'employeeCaller' => new Phonet\Data\Employee(
+                    static::ID,
+                    static::INTERNAL_NUMBER,
+                    static::DISPLAY_NAME,
+                    static::TYPE,
+                    static::EMAIL
+                ),
+                'employeeCallTaker' => new Phonet\Data\Employee(
+                    static::ID,
+                    static::INTERNAL_NUMBER,
+                    static::DISPLAY_NAME,
+                    static::TYPE,
+                    static::EMAIL
+                ),
+                'subjects' => new Phonet\Data\Collection\Subject([
+                    new Phonet\Data\Subject(
+                        static::SUBJECT_ID,
+                        static::NAME,
+                        static::NUMBER,
+                        static::COMPANY,
+                        static::URI,
+                        static::PRIORITY
+                    ),
+                ]),
+                'trunkNumber' => static::TRUNK_NUMBER,
+                'trunkName' => static::TRUNK_NAME
+            ],
+            $activeCall->jsonSerialize()
+        );
     }
 }
