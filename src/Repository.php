@@ -149,15 +149,30 @@ class Repository extends Model
         $this->validateLimit($limit);
         $this->validateOffset($offset);
 
+        $directions = $directions
+            ?
+            [
+                'directions' => $directions->map(function (Enum\Direction $direction): int {
+                    return $direction->getValue();
+                })
+            ]
+            :
+            [];
+
+        $request = new GuzzleHttp\Psr7\Request(
+            'GET',
+            $this->formUri($api),
+            [],
+            \json_encode(\array_merge([
+                static::FROM => Carbon::make($from)->timestamp,
+                static::TO => Carbon::make($to)->timestamp,
+                static::LIMIT => $limit,
+                static::OFFSET => $offset,
+            ], $directions))
+        );
+
         return $this->parseCompletedCalls(
-            (string)$this->send($this->getCompleteCallsRequest(
-                $api,
-                $from,
-                $to,
-                $directions,
-                $limit,
-                $offset
-            ))->getBody()
+            (string)$this->send($request)->getBody()
         );
     }
 

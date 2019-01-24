@@ -104,36 +104,6 @@ abstract class Model
         }
     }
 
-    protected function getCompleteCallsRequest(
-        string $api,
-        \DateTimeInterface $from,
-        \DateTimeInterface $to,
-        ?Data\Collection\Direction $directions,
-        int $limit,
-        int $offset
-    ): GuzzleHttp\Psr7\Request {
-        $directions = $directions
-            ?
-            [
-                'directions' => $directions->map(function (Enum\Direction $direction): int {
-                    return $direction->getValue();
-                })
-            ]
-            : [];
-
-        return new GuzzleHttp\Psr7\Request(
-            'GET',
-            $this->formUri($api),
-            [],
-            \json_encode(\array_merge([
-                static::FROM => Carbon::make($from)->timestamp,
-                static::TO => Carbon::make($to)->timestamp,
-                static::LIMIT => $limit,
-                static::OFFSET => $offset,
-            ], $directions))
-        );
-    }
-
     protected function formUri(string $api): string
     {
         return "https://{$this->config->getDomain()}/{$api}";
