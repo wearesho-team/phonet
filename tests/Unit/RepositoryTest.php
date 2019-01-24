@@ -184,24 +184,23 @@ class RepositoryTest extends ModelTestCase
         $this->assertEquals('+380442246595', $call->getTrunkName());
     }
 
-    public function testSuccessMissedCalls(): Phonet\Data\Collection\CompleteCall
+    /**
+     * @dataProvider CompleteCallsProvider
+     *
+     * @param string $api
+     * @param string $method
+     *
+     * @return Phonet\Data\Collection\CompleteCall
+     */
+    public function testSuccessCompleteCalls(string $api, string $method): Phonet\Data\Collection\CompleteCall
     {
-        $missedCalls = \file_get_contents(\dirname(__DIR__) . '/Mock/MissedCalls.json');
         $this->mock->append(
             new GuzzleHttp\Psr7\Response(200, ['set-cookie' => ['JSESSIONID' => 'test-id']]),
-            new GuzzleHttp\Psr7\Response(200, [], $missedCalls)
+            new GuzzleHttp\Psr7\Response(200, [], $this->getCompleteCallsJson())
         );
+        $calls = $this->getCompleteCallsByMethod($method);
 
-        /** @noinspection PhpUnhandledExceptionInspection */
-        $missedCalls = $this->repository->missedCalls(
-            Carbon::now(),
-            Carbon::now()->addMinute(1),
-            new Phonet\Data\Collection\Direction([
-                Phonet\Enum\Direction::OUT(),
-            ]),
-            10,
-            0
-        );
+        $this->assertCount(2, $calls);
 
         $authRequest = $this->container[0]['request'];
         $this->assertJsonStringEqualsJsonString(
@@ -217,37 +216,38 @@ class RepositoryTest extends ModelTestCase
             $sentRequest->getHeader('Cookie')
         );
         $this->assertEquals(
-            'https://' . static::DOMAIN . '/rest/calls/missed.api',
+            'https://' . static::DOMAIN . $api,
             (string)$sentRequest->getUri()
         );
 
-        return $missedCalls;
+        return $calls;
     }
 
-    public function testForceProvideForSuccessMissedCalls(): Phonet\Data\Collection\CompleteCall
+    /**
+     * @dataProvider completeCallsProvider
+     *
+     * @param string $api
+     * @param string $method
+     *
+     * @return Phonet\Data\Collection\CompleteCall
+     * @throws \Psr\SimpleCache\InvalidArgumentException
+     */
+    public function testForceProvideCompleteCalls(string $api, string $method): Phonet\Data\Collection\CompleteCall
     {
         /** @noinspection PhpUnhandledExceptionInspection */
         $this->cache->set(
             "phonet.authorization." . sha1($this->config->getDomain() . $this->config->getApiKey()),
             GuzzleHttp\Cookie\CookieJar::fromArray(['JSESSIONID' => 'test-id'], $this->config->getDomain())
         );
-        $missedCalls = \file_get_contents(\dirname(__DIR__) . '/Mock/MissedCalls.json');
         $this->mock->append(
             new GuzzleHttp\Psr7\Response(403, [], 'Some error'),
             new GuzzleHttp\Psr7\Response(200, ['set-cookie' => ['JSESSIONID' => 'test-id']]),
-            new GuzzleHttp\Psr7\Response(200, [], $missedCalls)
+            new GuzzleHttp\Psr7\Response(200, [], $this->getCompleteCallsJson())
         );
 
-        /** @noinspection PhpUnhandledExceptionInspection */
-        $missedCalls = $this->repository->missedCalls(
-            Carbon::now(),
-            Carbon::now()->addMinute(1),
-            new Phonet\Data\Collection\Direction([
-                Phonet\Enum\Direction::OUT(),
-            ]),
-            10,
-            0
-        );
+        $calls = $this->getCompleteCallsByMethod($method);
+
+        $this->assertCount(2, $calls);
 
         $authRequest = $this->container[1]['request'];
         $this->assertJsonStringEqualsJsonString(
@@ -263,7 +263,7 @@ class RepositoryTest extends ModelTestCase
             $sentRequest->getHeader('Cookie')
         );
         $this->assertEquals(
-            'https://' . static::DOMAIN . '/rest/calls/missed.api',
+            'https://' . static::DOMAIN . $api,
             (string)$sentRequest->getUri()
         );
         $cacheKey = "phonet.authorization." . sha1($this->config->getDomain() . $this->config->getApiKey());
@@ -275,10 +275,16 @@ class RepositoryTest extends ModelTestCase
             $this->cache->get($cacheKey)
         );
 
-        return $missedCalls;
+        return $calls;
     }
 
-    public function testUnexpectedExceptionForMissedCalls(): void
+    /**
+     * @dataProvider completeCallsProvider
+     *
+     * @param string $api
+     * @param string $method
+     */
+    public function testUnexpectedExceptionAfterForceProvide(string $api, string $method): void
     {
         $this->mock->append(
             new GuzzleHttp\Psr7\Response(403, [], 'Some error'),
@@ -294,64 +300,7 @@ class RepositoryTest extends ModelTestCase
         $this->expectExceptionMessage('Some error');
         $this->expectExceptionCode(400);
 
-        /** @noinspection PhpUnhandledExceptionInspection */
-        $this->repository->missedCalls(
-            Carbon::now(),
-            Carbon::now()->addMinute(1),
-            new Phonet\Data\Collection\Direction([
-                Phonet\Enum\Direction::OUT(),
-            ]),
-            10,
-            0
-        );
-    }
-
-    public function testFailedAuthorizationForMissedCalls(): void
-    {
-        $this->mock->append(
-            new GuzzleHttp\Psr7\Response(404, [], 'Some error')
-        );
-
-        $this->expectException(GuzzleHttp\Exception\ClientException::class);
-        $this->expectExceptionMessage('Some error');
-        $this->expectExceptionCode(404);
-
-        /** @noinspection PhpUnhandledExceptionInspection */
-        $this->repository->missedCalls(
-            Carbon::now(),
-            Carbon::now()->addMinute(1),
-            new Phonet\Data\Collection\Direction([
-                Phonet\Enum\Direction::OUT(),
-            ]),
-            10,
-            0
-        );
-    }
-
-    public function testSuccessCompanyCalls(): Phonet\Data\Collection\CompleteCall
-    {
-        $companyCalls = \file_get_contents(\dirname(__DIR__) . '/Mock/CompanyCalls.json');
-        $this->mock->append(
-            new GuzzleHttp\Psr7\Response(200, ['set-cookie' => ['JSESSIONID' => 'test-id']]),
-            new GuzzleHttp\Psr7\Response(200, [], $companyCalls)
-        );
-
-        /** @noinspection PhpUnhandledExceptionInspection */
-        $companyCalls = $this->repository->companyCalls(
-            Carbon::now(),
-            Carbon::now()->addMinute(1),
-            new Phonet\Data\Collection\Direction([
-                Phonet\Enum\Direction::OUT(),
-            ]),
-            10,
-            0
-        );
-
-        $authRequest = $this->container[0]['request'];
-        $this->assertJsonStringEqualsJsonString(
-            \json_encode(['domain' => static::DOMAIN, 'apiKey' => static::API_KEY]),
-            (string)$authRequest->getBody()
-        );
+        $this->getCompleteCallsByMethod($method);
 
         /** @var GuzzleHttp\Psr7\Request $sentRequest */
         $sentRequest = $this->container[1]['request'];
@@ -361,72 +310,47 @@ class RepositoryTest extends ModelTestCase
             $sentRequest->getHeader('Cookie')
         );
         $this->assertEquals(
-            'https://' . static::DOMAIN . '/rest/calls/company.api',
+            'https://' . static::DOMAIN . $api,
             (string)$sentRequest->getUri()
         );
-
-        return $companyCalls;
-    }
-
-    public function testForceProvideForCompanyCalls(): Phonet\Data\Collection\CompleteCall
-    {
-        /** @noinspection PhpUnhandledExceptionInspection */
-        $this->cache->set(
-            "phonet.authorization." . sha1($this->config->getDomain() . $this->config->getApiKey()),
-            GuzzleHttp\Cookie\CookieJar::fromArray(['JSESSIONID' => 'test-id'], $this->config->getDomain())
-        );
-        $companyCalls = \file_get_contents(\dirname(__DIR__) . '/Mock/CompanyCalls.json');
-        $this->mock->append(
-            new GuzzleHttp\Psr7\Response(403, [], 'Some error'),
-            new GuzzleHttp\Psr7\Response(200, ['set-cookie' => ['JSESSIONID' => 'test-id']]),
-            new GuzzleHttp\Psr7\Response(200, [], $companyCalls)
-        );
-
-        /** @noinspection PhpUnhandledExceptionInspection */
-        $companyCalls = $this->repository->companyCalls(
-            Carbon::now(),
-            Carbon::now()->addMinute(1),
-            new Phonet\Data\Collection\Direction([
-                Phonet\Enum\Direction::OUT(),
-            ]),
-            10,
-            0
-        );
-
-        $authRequest = $this->container[1]['request'];
-        $this->assertJsonStringEqualsJsonString(
-            \json_encode(['domain' => static::DOMAIN, 'apiKey' => static::API_KEY]),
-            (string)$authRequest->getBody()
-        );
-
-        /** @var GuzzleHttp\Psr7\Request $sentRequest */
-        $sentRequest = $this->container[2]['request'];
-
-        $this->assertEquals(
-            ["JSESSIONID=test-id"],
-            $sentRequest->getHeader('Cookie')
-        );
-        $this->assertEquals(
-            'https://' . static::DOMAIN . '/rest/calls/company.api',
-            (string)$sentRequest->getUri()
-        );
-        $cacheKey = "phonet.authorization." . sha1($this->config->getDomain() . $this->config->getApiKey());
-        /** @noinspection PhpUnhandledExceptionInspection */
-        $this->assertTrue($this->cache->has($cacheKey));
-        /** @noinspection PhpUnhandledExceptionInspection */
-        $this->assertEquals(
-            GuzzleHttp\Cookie\CookieJar::fromArray(['JSESSIONID' => 'test-id'], $this->config->getDomain()),
-            $this->cache->get($cacheKey)
-        );
-
-        return $companyCalls;
     }
 
     /**
-     * @depends testSuccessMissedCalls
-     * @depends testForceProvideForSuccessMissedCalls
-     * @depends testSuccessCompanyCalls
-     * @depends testForceProvideForCompanyCalls
+     * @dataProvider completeCallsProvider
+     *
+     * @param string $api
+     * @param string $method
+     */
+    public function testAuthorizationException(string $api, string $method): void
+    {
+        $this->mock->append(
+            new GuzzleHttp\Psr7\Response(404, [], 'Some error')
+        );
+
+        $this->expectException(GuzzleHttp\Exception\ClientException::class);
+        $this->expectExceptionMessage('Some error');
+        $this->expectExceptionCode(404);
+
+        $this->getCompleteCallsByMethod($method);
+
+        $this->assertEquals(
+            'https://' . static::DOMAIN . $api,
+            (string)$this->container[1]['request']->getUri()
+        );
+    }
+
+    public function completeCallsProvider(): array
+    {
+        return [
+            ['/rest/calls/company.api', 'companyCalls'],
+            ['/rest/calls/users.api', 'usersCalls'],
+            ['/rest/calls/missed.api', 'missedCalls'],
+        ];
+    }
+
+    /**
+     * @depends testSuccessCompleteCalls
+     * @depends testForceProvideCompleteCalls
      *
      * @param Phonet\Data\Collection\CompleteCall $completeCalls
      */
@@ -462,5 +386,24 @@ class RepositoryTest extends ModelTestCase
             $missedCall->getAudioRecUrl()
         );
         $this->assertNull($missedCall->getTrunk());
+    }
+
+    protected function getCompleteCallsByMethod(string $method): Phonet\Data\Collection\CompleteCall
+    {
+        /** @noinspection PhpUnhandledExceptionInspection */
+        return $this->repository->{$method}(
+            Carbon::now(),
+            Carbon::now()->addMinute(1),
+            new Phonet\Data\Collection\Direction([
+                Phonet\Enum\Direction::OUT(),
+            ]),
+            10,
+            0
+        );
+    }
+
+    protected function getCompleteCallsJson(): string
+    {
+        return \file_get_contents(\dirname(__DIR__) . '/Mock/CompleteCalls.json');
     }
 }
