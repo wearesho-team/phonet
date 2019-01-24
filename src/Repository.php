@@ -239,14 +239,14 @@ class Repository extends Model
     protected function validateLimit(int $limit): void
     {
         if ($limit > 50 || $limit < 1) {
-            throw new \InvalidArgumentException('Limit must be in range between 1 and 50');
+            throw new \InvalidArgumentException("Invalid limit: {$limit}. It must be in range between 1 and 50");
         }
     }
 
     protected function validateOffset(int $offset): void
     {
         if ($offset < 0) {
-            throw new \InvalidArgumentException('Offset can not be less then 0');
+            throw new \InvalidArgumentException("Invalid offset: {$offset}. It can not be less then 0");
         }
     }
 }

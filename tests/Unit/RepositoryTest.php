@@ -153,14 +153,26 @@ class RepositoryTest extends ModelTestCase
         $this->assertNull($call->getEmployeeCallTaker());
         /** @var Phonet\Data\Subject $subject */
         $subject = $call->getSubjects()[0];
-        $this->assertEquals("6137", $subject->getId());
-        $this->assertEquals("Telecom company", $subject->getName());
-        $this->assertEquals("+380442249895", $subject->getNumber());
+        $expectSubjectId = "6137";
+        $expectSubjectName = "Telecom company";
+        $expectSubjectNumber = "+380442249895";
+        $expectSubjectUri = "https://self.phonet.com.ua/features/crm/contacts/edit.jsp#/?id=6137";
+        $this->assertEquals($expectSubjectId, $subject->getId());
+        $this->assertEquals($expectSubjectName, $subject->getName());
+        $this->assertEquals($expectSubjectNumber, $subject->getNumber());
         $this->assertNull($subject->getCompany());
         $this->assertNull($subject->getPriority());
+        $this->assertEquals($expectSubjectUri, $subject->getUri());
         $this->assertEquals(
-            "https://self.phonet.com.ua/features/crm/contacts/edit.jsp#/?id=6137",
-            $subject->getUri()
+            [
+                'id' => $expectSubjectId,
+                'name' => $expectSubjectName,
+                'number' => $expectSubjectNumber,
+                'company' => null,
+                'priority' => null,
+                'uri' => $expectSubjectUri
+            ],
+            $subject->jsonSerialize()
         );
         $this->assertEquals('+380442246595', $call->getTrunkNumber());
         $this->assertEquals('+380442246595', $call->getTrunkName());
@@ -192,13 +204,8 @@ class RepositoryTest extends ModelTestCase
      */
     public function testSuccessCompleteCalls(string $api, string $method): void
     {
-        $this->mock->append(
-            new GuzzleHttp\Psr7\Response(200, ['set-cookie' => ['JSESSIONID' => 'test-id']]),
-            new GuzzleHttp\Psr7\Response(200, [], $this->getCompleteCallsJson())
-        );
+        $this->mockSuccess($this->getCompleteCallsJson());
         $calls = $this->getCompleteCallsByMethod($method);
-
-        $this->assertCount(2, $calls);
 
         $authRequest = $this->container[0]['request'];
         $this->assertJsonStringEqualsJsonString(
@@ -239,8 +246,6 @@ class RepositoryTest extends ModelTestCase
 
         $calls = $this->getCompleteCallsByMethod($method);
 
-        $this->assertCount(2, $calls);
-
         $authRequest = $this->container[1]['request'];
         $this->assertJsonStringEqualsJsonString(
             \json_encode(['domain' => static::DOMAIN, 'apiKey' => static::API_KEY]),
@@ -272,9 +277,6 @@ class RepositoryTest extends ModelTestCase
 
     /**
      * @dataProvider completeCallsProvider
-     *
-     * @param string $api
-     * @param string $method
      */
     public function testUnexpectedExceptionAfterForceProvide(string $api, string $method): void
     {
@@ -309,9 +311,6 @@ class RepositoryTest extends ModelTestCase
 
     /**
      * @dataProvider completeCallsProvider
-     *
-     * @param string $api
-     * @param string $method
      */
     public function testAuthorizationException(string $api, string $method): void
     {
@@ -338,6 +337,80 @@ class RepositoryTest extends ModelTestCase
             ['/rest/calls/users.api', 'usersCalls'],
             ['/rest/calls/missed.api', 'missedCalls'],
         ];
+    }
+
+    /**
+     * @dataProvider limitProvider
+     */
+    public function testInvalidLimit(int $limit, string $method): void
+    {
+        $this->mock->append(
+            new GuzzleHttp\Psr7\Response(200, ['set-cookie' => ['JSESSIONID' => 'test-id']])
+        );
+
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage("Invalid limit: $limit. It must be in range between 1 and 50");
+
+        $this->getCompleteCallsByMethod($method, $limit);
+    }
+
+    public function limitProvider(): array
+    {
+        return [
+            [-20, 'companyCalls'],
+            [0, 'usersCalls'],
+            [51, 'missedCalls'],
+        ];
+    }
+
+    /**
+     * @dataProvider offsetProvider
+     */
+    public function testInvalidOffset(int $offset, string $method): void
+    {
+        $this->mock->append(
+            new GuzzleHttp\Psr7\Response(200, ['set-cookie' => ['JSESSIONID' => 'test-id']])
+        );
+
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage("Invalid offset: $offset. It can not be less then 0");
+
+        $this->getCompleteCallsByMethod($method, 1, $offset);
+    }
+
+    public function offsetProvider(): array
+    {
+        return [
+            [-20, 'companyCalls'],
+            [-100, 'usersCalls'],
+            [-1, 'missedCalls'],
+        ];
+    }
+
+    public function testSuccessUsers(): void
+    {
+        $this->mockSuccess($this->getUsersJson());
+        $users = $this->repository->users();
+
+        $this->parseUsers($users);
+
+        $authRequest = $this->container[0]['request'];
+        $this->assertJsonStringEqualsJsonString(
+            \json_encode(['domain' => static::DOMAIN, 'apiKey' => static::API_KEY]),
+            (string)$authRequest->getBody()
+        );
+
+        /** @var GuzzleHttp\Psr7\Request $sentRequest */
+        $sentRequest = $this->container[1]['request'];
+
+        $this->assertEquals(
+            ["JSESSIONID=test-id"],
+            $sentRequest->getHeader('Cookie')
+        );
+        $this->assertEquals(
+            'https://' . static::DOMAIN . '/rest/users',
+            (string)$sentRequest->getUri()
+        );
     }
 
     protected function parseCompleteCalls(Phonet\Data\Collection\CompleteCall $completeCalls): void
@@ -374,8 +447,44 @@ class RepositoryTest extends ModelTestCase
         $this->assertNull($missedCall->getTrunk());
     }
 
-    protected function getCompleteCallsByMethod(string $method): Phonet\Data\Collection\CompleteCall
+    public function parseUsers(Phonet\Data\Collection\Employee $users): void
     {
+        $this->assertCount(2, $users);
+
+        $expectData = [
+            [
+                'id' => 30,
+                'displayName' => 'Иван Иванов',
+                'ext' => '901',
+                'email' => "ivan.ivanov@phonet.com.ua"
+            ],
+            [
+                "id" => 14,
+                "displayName" => "Юрий Юрьев",
+                "ext" => "990",
+                "email" => "yuriy.yuriev@phonet.com.ua"
+            ]
+        ];
+
+        /**
+         * @var int $key
+         * @var Phonet\Data\Employee $user
+         */
+        foreach ($users as $key => $user) {
+            $data = $expectData[$key];
+
+            $this->assertEquals($data['id'], $user->getId());
+            $this->assertEquals($data['displayName'], $user->getDisplayName());
+            $this->assertEquals($data['ext'], $user->getInternalNumber());
+            $this->assertEquals($data['email'], $user->getEmail());
+        }
+    }
+
+    protected function getCompleteCallsByMethod(
+        string $method,
+        $limit = 50,
+        $offset = 0
+    ): Phonet\Data\Collection\CompleteCall {
         /** @noinspection PhpUnhandledExceptionInspection */
         return $this->repository->{$method}(
             Carbon::now(),
@@ -383,13 +492,31 @@ class RepositoryTest extends ModelTestCase
             new Phonet\Data\Collection\Direction([
                 Phonet\Enum\Direction::OUT(),
             ]),
-            10,
-            0
+            $limit,
+            $offset
+        );
+    }
+
+    protected function mockSuccess(string $data): void
+    {
+        $this->mock->append(
+            new GuzzleHttp\Psr7\Response(200, ['set-cookie' => ['JSESSIONID' => 'test-id']]),
+            new GuzzleHttp\Psr7\Response(200, [], $data)
         );
     }
 
     protected function getCompleteCallsJson(): string
     {
-        return \file_get_contents(\dirname(__DIR__) . '/Mock/CompleteCalls.json');
+        return $this->getJson('CompleteCalls');
+    }
+
+    public function getUsersJson(): string
+    {
+        return $this->getJson('Users');
+    }
+
+    public function getJson(string $file): string
+    {
+        return \file_get_contents(\dirname(__DIR__) . "/Mock/{$file}.json");
     }
 }

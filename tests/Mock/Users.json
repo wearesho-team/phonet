@@ -1,0 +1,14 @@
+[
+  {
+    "id": 30,
+    "displayName": "Иван Иванов",
+    "ext": "901",
+    "email": "ivan.ivanov@phonet.com.ua"
+  },
+  {
+    "id": 14,
+    "displayName": "Юрий Юрьев",
+    "ext": "990",
+    "email": "yuriy.yuriev@phonet.com.ua"
+  }
+]
