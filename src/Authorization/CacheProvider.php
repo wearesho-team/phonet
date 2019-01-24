@@ -29,11 +29,12 @@ class CacheProvider extends Provider implements CacheProviderInterface
      */
     public function provide(ConfigInterface $config): GuzzleHttp\Cookie\CookieJarInterface
     {
-        $cacheKey = $this->getCacheKey($config);
+        $cached = $this->cache
+            ->get(
+                $this->getCacheKey($config)
+            );
 
-        $cached = $this->cache->get($cacheKey);
-
-        if (!$cached instanceof GuzzleHttp\Cookie\CookieJarInterface || !$this->cache->has($cacheKey)) {
+        if (!$cached instanceof GuzzleHttp\Cookie\CookieJarInterface) {
             return $this->forceProvide($config);
         }
 
