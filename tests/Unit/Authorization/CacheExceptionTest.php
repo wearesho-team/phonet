@@ -34,4 +34,12 @@ class CacheExceptionTest extends TestCase
     {
         $this->assertEquals(new CookieJar(), $this->fakeCacheException->getCookieJar());
     }
+
+    public function testToString(): void
+    {
+        $this->assertStringContainsString(
+            "Failed saving cookieJar into cache with key: " . static::CACHE_KEY,
+            (string)$this->fakeCacheException
+        );
+    }
 }

@@ -31,16 +31,9 @@ class CacheProvider extends Provider implements CacheProviderInterface
     {
         $cacheKey = $this->getCacheKey($config);
 
-        if (!$this->cache->has($cacheKey)) {
-            $response = parent::provide($config);
-            $this->cacheResponse($cacheKey, $response);
-
-            return $response;
-        }
-
         $cached = $this->cache->get($cacheKey);
 
-        if (!$cached instanceof GuzzleHttp\Cookie\CookieJarInterface) {
+        if (!$cached instanceof GuzzleHttp\Cookie\CookieJarInterface || !$this->cache->has($cacheKey)) {
             return $this->forceProvide($config);
         }
 
@@ -69,7 +62,7 @@ class CacheProvider extends Provider implements CacheProviderInterface
      *
      * @throws \Psr\SimpleCache\InvalidArgumentException
      */
-    protected function cacheResponse(string $cacheKey, GuzzleHttp\Cookie\CookieJarInterface $response)
+    protected function cacheResponse(string $cacheKey, GuzzleHttp\Cookie\CookieJarInterface $response): void
     {
         $isCacheSet = $this->cache->set($cacheKey, $response);
 

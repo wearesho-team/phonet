@@ -38,4 +38,9 @@ class CacheException extends \RuntimeException
     {
         return $this->cookieJar;
     }
+
+    public function __toString(): string
+    {
+        return "Failed saving cookieJar into cache with key: " . $this->getCacheKey() . PHP_EOL . parent::__toString();
+    }
 }

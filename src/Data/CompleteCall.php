@@ -70,6 +70,11 @@ class CompleteCall extends BaseCall
     public function jsonSerialize(): array
     {
         return [
+            'uuid' => $this->uuid,
+            'parentUuid' => $this->parentUuid,
+            'direction' => $this->direction,
+            'employeeCaller' => $this->employeeCaller,
+            'employeeCallTaker' => $this->employeeCallTaker,
             'endAt' => $this->endAt,
             'subjectNumber' => $this->subjectNumber,
             'subjectName' => $this->subjectName,
