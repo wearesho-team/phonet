@@ -30,9 +30,12 @@ class ActiveCallTest extends TestCase
     protected const TRUNK_NAME = 'trunk-name';
     protected const SUBJECT_ID = 'subject-id';
 
-    public function testInstance(): Phonet\Data\ActiveCall
+    /** @var Phonet\Data\ActiveCall */
+    protected $activeCall;
+
+    protected function setUp(): void
     {
-        $activeCall = new Phonet\Data\ActiveCall(
+        $this->activeCall = new Phonet\Data\ActiveCall(
             static::UUID,
             static::PARENT_UUID,
             Carbon::make(static::DIAL_AT),
@@ -66,109 +69,71 @@ class ActiveCallTest extends TestCase
             static::TRUNK_NUMBER,
             static::TRUNK_NAME
         );
-        $this->assertInstanceOf(Phonet\Data\ActiveCall::class, $activeCall);
+    }
 
-        return $activeCall;
+    public function testInstance()
+    {
+        $this->assertInstanceOf(Phonet\Data\ActiveCall::class, $this->activeCall);
     }
 
     /**
      * @depends testInstance
-     *
-     * @param Phonet\Data\ActiveCall $activeCall
-     *
-     * @return Phonet\Data\ActiveCall
      */
-    public function testGetUuid(Phonet\Data\ActiveCall $activeCall): Phonet\Data\ActiveCall
+    public function testGetUuid(): void
     {
-        $this->assertEquals(static::UUID, $activeCall->getUuid());
-
-        return $activeCall;
+        $this->assertEquals(static::UUID, $this->activeCall->getUuid());
     }
 
     /**
      * @depends testGetUuid
-     *
-     * @param Phonet\Data\ActiveCall $activeCall
-     *
-     * @return Phonet\Data\ActiveCall
      */
-    public function testGetParentUuid(Phonet\Data\ActiveCall $activeCall): Phonet\Data\ActiveCall
+    public function testGetParentUuid(): void
     {
-        $this->assertEquals(static::PARENT_UUID, $activeCall->getParentUuid());
-
-        return $activeCall;
+        $this->assertEquals(static::PARENT_UUID, $this->activeCall->getParentUuid());
     }
 
     /**
      * @depends testGetParentUuid
-     *
-     * @param Phonet\Data\ActiveCall $activeCall
-     *
-     * @return Phonet\Data\ActiveCall
      */
-    public function testGetBridgeAt(Phonet\Data\ActiveCall $activeCall): Phonet\Data\ActiveCall
+    public function testGetBridgeAt(): void
     {
         $this->assertEquals(
             Carbon::make(static::BRIDGE_AT),
-            Carbon::make($activeCall->getBridgeAt())
+            Carbon::make($this->activeCall->getBridgeAt())
         );
-
-        return $activeCall;
     }
 
     /**
      * @depends testGetBridgeAt
-     *
-     * @param Phonet\Data\ActiveCall $activeCall
-     *
-     * @return Phonet\Data\ActiveCall
      */
-    public function testGetDialAt(Phonet\Data\ActiveCall $activeCall): Phonet\Data\ActiveCall
+    public function testGetDialAt(): void
     {
         $this->assertEquals(
             Carbon::make(static::DIAL_AT),
-            Carbon::make($activeCall->getDialAt())
+            Carbon::make($this->activeCall->getDialAt())
         );
-
-        return $activeCall;
     }
 
     /**
      * @depends testGetDialAt
-     *
-     * @param Phonet\Data\ActiveCall $activeCall
-     *
-     * @return Phonet\Data\ActiveCall
      */
-    public function testGetDirection(Phonet\Data\ActiveCall $activeCall): Phonet\Data\ActiveCall
+    public function testGetDirection(): void
     {
-        $this->assertEquals(Phonet\Enum\Direction::IN(), $activeCall->getDirection());
-
-        return $activeCall;
+        $this->assertEquals(Phonet\Enum\Direction::IN(), $this->activeCall->getDirection());
     }
 
     /**
      * @depends testGetDirection
-     *
-     * @param Phonet\Data\ActiveCall $activeCall
-     *
-     * @return Phonet\Data\ActiveCall
      */
-    public function testGetLastEvent(Phonet\Data\ActiveCall $activeCall): Phonet\Data\ActiveCall
+    public function testGetLastEvent(): void
     {
-        $this->assertEquals(Phonet\Enum\LastEvent::HANGUP(), $activeCall->getLastEvent());
-
-        return $activeCall;
+        $this->assertEquals(Phonet\Enum\LastEvent::HANGUP(), $this->activeCall->getLastEvent());
     }
 
     /**
      * @depends testGetLastEvent
-     *
-     * @param Phonet\Data\ActiveCall $activeCall
-     *
-     * @return Phonet\Data\ActiveCall
      */
-    public function testGetEmployeeCaller(Phonet\Data\ActiveCall $activeCall): Phonet\Data\ActiveCall
+    public function testGetEmployeeCaller(): void
     {
         $this->assertEquals(
             new Phonet\Data\Employee(
@@ -178,20 +143,14 @@ class ActiveCallTest extends TestCase
                 static::TYPE,
                 static::EMAIL
             ),
-            $activeCall->getEmployeeCaller()
+            $this->activeCall->getEmployeeCaller()
         );
-
-        return $activeCall;
     }
 
     /**
      * @depends testGetEmployeeCaller
-     *
-     * @param Phonet\Data\ActiveCall $activeCall
-     *
-     * @return Phonet\Data\ActiveCall
      */
-    public function testGetEmployeeCallTaker(Phonet\Data\ActiveCall $activeCall): Phonet\Data\ActiveCall
+    public function testGetEmployeeCallTaker(): void
     {
         $this->assertEquals(
             new Phonet\Data\Employee(
@@ -201,20 +160,14 @@ class ActiveCallTest extends TestCase
                 static::TYPE,
                 static::EMAIL
             ),
-            $activeCall->getEmployeeCallTaker()
+            $this->activeCall->getEmployeeCallTaker()
         );
-
-        return $activeCall;
     }
 
     /**
      * @depends testGetEmployeeCallTaker
-     *
-     * @param Phonet\Data\ActiveCall $activeCall
-     *
-     * @return Phonet\Data\ActiveCall
      */
-    public function testGetSubjects(Phonet\Data\ActiveCall $activeCall): Phonet\Data\ActiveCall
+    public function testGetSubjects(): void
     {
         $this->assertEquals(
             new Phonet\Data\Collection\Subject([
@@ -227,46 +180,30 @@ class ActiveCallTest extends TestCase
                     static::PRIORITY
                 ),
             ]),
-            $activeCall->getSubjects()
+            $this->activeCall->getSubjects()
         );
-
-        return $activeCall;
     }
 
     /**
      * @depends testGetSubjects
-     *
-     * @param Phonet\Data\ActiveCall $activeCall
-     *
-     * @return Phonet\Data\ActiveCall
      */
-    public function testGetTrunkNumber(Phonet\Data\ActiveCall $activeCall): Phonet\Data\ActiveCall
+    public function testGetTrunkNumber(): void
     {
-        $this->assertEquals(static::TRUNK_NUMBER, $activeCall->getTrunkNumber());
-
-        return $activeCall;
+        $this->assertEquals(static::TRUNK_NUMBER, $this->activeCall->getTrunkNumber());
     }
 
     /**
      * @depends testGetTrunkNumber
-     *
-     * @param Phonet\Data\ActiveCall $activeCall
-     *
-     * @return Phonet\Data\ActiveCall
      */
-    public function testGetTrunkName(Phonet\Data\ActiveCall $activeCall): Phonet\Data\ActiveCall
+    public function testGetTrunkName(): void
     {
-        $this->assertEquals(static::TRUNK_NAME, $activeCall->getTrunkName());
-
-        return $activeCall;
+        $this->assertEquals(static::TRUNK_NAME, $this->activeCall->getTrunkName());
     }
 
     /**
      * @depends testGetTrunkName
-     *
-     * @param Phonet\Data\ActiveCall $activeCall
      */
-    public function testJsonSerialize(Phonet\Data\ActiveCall $activeCall): void
+    public function testJsonSerialize(): void
     {
         $this->assertEquals(
             [
@@ -303,7 +240,7 @@ class ActiveCallTest extends TestCase
                 'trunkNumber' => static::TRUNK_NUMBER,
                 'trunkName' => static::TRUNK_NAME
             ],
-            $activeCall->jsonSerialize()
+            $this->activeCall->jsonSerialize()
         );
     }
 }
