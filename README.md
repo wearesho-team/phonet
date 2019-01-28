@@ -78,7 +78,12 @@ $uuid = $service->makeCall(
 
 Repository contains methods for searching data in Phonet Service.
 
-#### activeCalls(): Data\Collection\ActiveCall
+#### activeCalls()
+
+|param      |value            |
+|-----------|-----------------|
+|Return type| [Data\Collection\ActiveCall](./src/Data/Collection/ActiveCall.php)|
+|Arguments| - |
 
 Returns collection of calls that currently taking place.
 
@@ -94,7 +99,12 @@ $repository = new Phonet\Repository($sender);
 $activeCalls = $repository->activeCalls();
 ```
 
-#### missedCalls($from, $to, $directions, $limit, $offset): Data\Collection\CompleteCall
+#### missedCalls(...)
+
+|param      |value            |
+|-----------|-----------------|
+|Return type| [Data\Collection\CompleteCall](./src/Data/Collection/CompleteCall.php)|
+|Arguments|$from, $to, $directions, $limit, $offset|
 
 Returns a collection of calls to call back.
 
@@ -116,7 +126,12 @@ $missedCalls = $repository->missedCalls(
 );
 ```
 
-#### companyCalls($from, $to, $directions, $limit, $offset): Data\Collection\CompleteCall
+#### companyCalls(...)
+
+|param      |value            |
+|-----------|-----------------|
+|Return type| [Data\Collection\CompleteCall](./src/Data/Collection/CompleteCall.php)|
+|Arguments|$from, $to, $directions, $limit, $offset|
 
 Returns a collection of calls made by the company.
 
@@ -138,7 +153,12 @@ $companyCalls = $repository->companyCalls(
 );
 ```
 
-#### usersCalls($from, $to, $directions, $limit, $offset): Data\Collection\CompleteCall
+#### usersCalls()
+
+|param      |value            |
+|-----------|-----------------|
+|Return type| [Data\Collection\CompleteCall](./src/Data/Collection/CompleteCall.php)|
+|Arguments|$from, $to, $directions, $limit, $offset|
 
 Returns a collection of calls made by employees.
 
@@ -160,7 +180,12 @@ $usersCalls = $repository->usersCalls(
 );
 ```
 
-#### users(): Data\Collection\Employee
+#### users()
+
+|param      |value            |
+|-----------|-----------------|
+|Return type| [Data\Collection\Employee](./src/Data/Collection/Employee.php)|
+|Arguments| - |
 
 Returns a collection of employees of company.
 
