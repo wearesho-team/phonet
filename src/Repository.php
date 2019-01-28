@@ -60,46 +60,9 @@ class Repository
      */
     public function activeCalls(): Data\Collection\ActiveCall
     {
-        $response = $this->sender->send('rest/calls/active/v3', null);
-        $data = \json_decode((string)$response->getBody(), true);
-
-        return new Data\Collection\ActiveCall(\array_map(function (array $call): Data\ActiveCall {
-            $bridgeAt = $call[static::BRIDGE_AT];
-            $caller = $call[static::CALLER];
-            $employeeCallTaker = $call[static::EMPLOYEE_CALL_TAKER];
-            $subjects = $call[static::SUBJECT_COLLECTION] ?? [];
-
-            return new Data\ActiveCall(
-                $call[static::UUID],
-                Carbon::createFromTimestamp($call[static::DIAL_AT]),
-                new Enum\Direction($call[static::DIRECTION]),
-                new Enum\LastEvent($call[static::LAST_EVENT]),
-                new Data\Employee($caller[static::ID], $caller[static::EMPLOYEE_NUMBER], $caller[static::DISPLAY_NAME]),
-                $call[static::TRUNK_NUMBER],
-                $call[static::TRUNK_NAME],
-                $call[static::PARENT_UUID],
-                !\is_null($bridgeAt) ? Carbon::createFromTimestamp($bridgeAt) : null,
-                !\is_null($employeeCallTaker)
-                    ? new Data\Employee(
-                        $employeeCallTaker[static::ID],
-                        $employeeCallTaker[static::EMPLOYEE_NUMBER],
-                        $employeeCallTaker[static::DISPLAY_NAME]
-                    )
-                    : null,
-                $subjects
-                    ? new Data\Collection\Subject(\array_map(function (array $subject): Data\Subject {
-                        return new Data\Subject(
-                            $subject[static::NUMBER],
-                            $subject[static::URL],
-                            $subject[static::ID],
-                            $subject[static::NAME],
-                            $subject[static::COMPANY_NAME],
-                            isset($subject[static::PRIORITY]) ? $subject[static::PRIORITY] : null
-                        );
-                    }, $subjects))
-                    : null
-            );
-        }, $data));
+        return $this->parseActiveCalls(
+            $this->sender->send('rest/calls/active/v3', null)
+        );
     }
 
     /**
@@ -210,15 +173,13 @@ class Repository
             :
             [];
 
-        $response = $this->sender->send($api, \json_encode(\array_merge([
-            static::FROM => Carbon::make($from)->timestamp,
-            static::TO => Carbon::make($to)->timestamp,
-            static::LIMIT => $limit,
-            static::OFFSET => $offset,
-        ], $directions)));
-
         return $this->parseCompletedCalls(
-            (string)$response->getBody()
+            $this->sender->send($api, \json_encode(\array_merge([
+                static::FROM => Carbon::make($from)->timestamp,
+                static::TO => Carbon::make($to)->timestamp,
+                static::LIMIT => $limit,
+                static::OFFSET => $offset,
+            ], $directions)))
         );
     }
 
@@ -228,9 +189,6 @@ class Repository
      */
     public function users(): Data\Collection\Employee
     {
-        $response = $this->sender->send('rest/users', null);
-        $data = \json_decode((string)$response->getBody(), true);
-
         return new Data\Collection\Employee(\array_map(function ($employee): Data\Employee {
             return new Data\Employee(
                 $employee[static::ID],
@@ -239,10 +197,10 @@ class Repository
                 null,
                 $employee[static::EMAIL]
             );
-        }, $data));
+        }, $this->sender->send('rest/users', null)));
     }
 
-    protected function parseCompletedCalls(string $data): Data\Collection\CompleteCall
+    protected function parseCompletedCalls(array $data): Data\Collection\CompleteCall
     {
         return new Data\Collection\CompleteCall(\array_map(function (array $call): Data\CompleteCall {
             $caller = $call[static::CALLER];
@@ -276,7 +234,48 @@ class Repository
                 $call[static::TRANSFER_HISTORY],
                 $call[static::AUDIO_REC_URL]
             );
-        }, \json_decode($data, true)));
+        }, $data));
+    }
+
+    protected function parseActiveCalls(array $data): Data\Collection\ActiveCall
+    {
+        return new Data\Collection\ActiveCall(\array_map(function (array $call): Data\ActiveCall {
+            $bridgeAt = $call[static::BRIDGE_AT];
+            $caller = $call[static::CALLER];
+            $employeeCallTaker = $call[static::EMPLOYEE_CALL_TAKER];
+            $subjects = $call[static::SUBJECT_COLLECTION] ?? [];
+
+            return new Data\ActiveCall(
+                $call[static::UUID],
+                Carbon::createFromTimestamp($call[static::DIAL_AT]),
+                new Enum\Direction($call[static::DIRECTION]),
+                new Enum\LastEvent($call[static::LAST_EVENT]),
+                new Data\Employee($caller[static::ID], $caller[static::EMPLOYEE_NUMBER], $caller[static::DISPLAY_NAME]),
+                $call[static::TRUNK_NUMBER],
+                $call[static::TRUNK_NAME],
+                $call[static::PARENT_UUID],
+                !\is_null($bridgeAt) ? Carbon::createFromTimestamp($bridgeAt) : null,
+                !\is_null($employeeCallTaker)
+                    ? new Data\Employee(
+                        $employeeCallTaker[static::ID],
+                        $employeeCallTaker[static::EMPLOYEE_NUMBER],
+                        $employeeCallTaker[static::DISPLAY_NAME]
+                    )
+                    : null,
+                $subjects
+                    ? new Data\Collection\Subject(\array_map(function (array $subject): Data\Subject {
+                        return new Data\Subject(
+                            $subject[static::NUMBER],
+                            $subject[static::URL],
+                            $subject[static::ID],
+                            $subject[static::NAME],
+                            $subject[static::COMPANY_NAME],
+                            isset($subject[static::PRIORITY]) ? $subject[static::PRIORITY] : null
+                        );
+                    }, $subjects))
+                    : null
+            );
+        }, $data));
     }
 
     protected function validateLimit(int $limit): void

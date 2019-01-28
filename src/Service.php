@@ -29,12 +29,9 @@ class Service
      */
     public function makeCall(string $callerNumber, string $callTakerNumber): string
     {
-        $response = $this->sender->send('rest/user/makeCall', \json_encode([
+        return $this->sender->send('rest/user/makeCall', \json_encode([
             'legExt'=> $callerNumber,
             'otherLegNum' => $callTakerNumber,
-        ]));
-        $data = \json_decode((string)$response->getBody());
-
-        return $data->uuid;
+        ]))['uuid'];
     }
 }

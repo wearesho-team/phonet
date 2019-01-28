@@ -37,10 +37,10 @@ class Sender
      * @param string $api
      * @param string $body
      *
-     * @return ResponseInterface
+     * @return array Json
      * @throws GuzzleHttp\Exception\GuzzleException
      */
-    public function send(string $api, ?string $body): ResponseInterface
+    public function send(string $api, ?string $body): array
     {
         $options = [
             GuzzleHttp\RequestOptions::HEADERS => [
@@ -51,20 +51,35 @@ class Sender
         $uri = "https://{$this->config->getDomain()}/{$api}";
 
         try {
-            return $this->client->request('POST', $uri, \array_merge([
-                GuzzleHttp\RequestOptions::COOKIES => $this->provider->provide($this->config)
-            ], $options));
+            return $this->parseResponse(
+                $this->client->request('POST', $uri, \array_merge([
+                    GuzzleHttp\RequestOptions::COOKIES => $this->provider->provide($this->config)
+                ], $options))
+            );
         } catch (GuzzleHttp\Exception\ClientException $exception) {
             if ($exception->hasResponse()
                 && $exception->getResponse()->getStatusCode() === static::STATUS_FORBIDDEN
                 && $this->provider instanceof Authorization\CacheProviderInterface
             ) {
-                return $this->client->request('POST', $uri, \array_merge([
-                    GuzzleHttp\RequestOptions::COOKIES => $this->provider->forceProvide($this->config)
-                ], $options));
+                return $this->parseResponse(
+                    $this->client->request('POST', $uri, \array_merge([
+                        GuzzleHttp\RequestOptions::COOKIES => $this->provider->forceProvide($this->config)
+                    ], $options))
+                );
             }
 
             throw $exception;
         }
+    }
+
+    private function parseResponse(ResponseInterface $response): array
+    {
+        $json = \json_decode((string)$response->getBody(), true);
+
+        if (\json_last_error() !== JSON_ERROR_NONE) {
+            throw new \RuntimeException('Response body content not json');
+        }
+
+        return $json;
     }
 }
