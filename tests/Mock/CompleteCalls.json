@@ -1,0 +1,48 @@
+[
+  {
+    "parentUuid": "d267486f-a539-45dd-c5f5-e735a5870b80",
+    "uuid": "f457486f-a539-45dd-c5f5-e735a5870b92",
+    "endAt": 1435319298470,
+    "lgDirection": 1,
+    "otherLegNum": null,
+    "otherLegName": null,
+    "leg": {
+      "id": 36,
+      "type": 1,
+      "displayName": "Васильев Андрей",
+      "ext": "001"
+    },
+    "leg2": {
+      "id": 19,
+      "type": 1,
+      "displayName": "Operator 4",
+      "ext": "004"
+    },
+    "billSecs": 3,
+    "duration": 4,
+    "disposition": 0,
+    "transferHistory": null,
+    "audioRecUrl": "https://podium.betell.com.ua/rest/public/calls/f457486f-a539-45dd-c5f5-e735a5870b92/audio ",
+    "trunk": null
+  },
+  {
+    "uuid": "d38f07d9-3b59-47aa-c711-94c6bebe1621",
+    "endAt": 1435317888511,
+    "lgDirection": 2,
+    "otherLegNum": "+380993034330",
+    "otherLegName": "+380993034330",
+    "leg": {
+      "id": 36,
+      "type": 1,
+      "displayName": "Васильев Андрей",
+      "ext": "001"
+    },
+    "leg2": null,
+    "billSecs": 4,
+    "duration": 15,
+    "disposition": 0,
+    "transferHistory": "003 > 001",
+    "audioRecUrl": "https://podium.betell.com.ua/rest/public/calls/d38f07d9-3b59-47aa-c711-94c6bebe1621/audio ",
+    "trunk": "o=380442249895;"
+  }
+]

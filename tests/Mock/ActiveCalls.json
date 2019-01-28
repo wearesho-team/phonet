@@ -1,0 +1,73 @@
+[
+  {
+    "uuid": "47a968893984475b8c20e29dec144ce3",
+    "parentUuid": null,
+    "lastEvent": "call.dial",
+    "dialAt": 1431686100,
+    "bridgeAt": null,
+    "lgDirection": 2,
+    "leg": {
+      "id": 36,
+      "ext": "001",
+      "displayName": "Иван Иванов"
+    },
+    "leg2": null,
+    "otherLegs": [
+      {
+        "id": "6137",
+        "name": "Telecom company",
+        "num": "+380442249895",
+        "companyName": null,
+        "url": "https://self.phonet.com.ua/features/crm/contacts/edit.jsp#/?id=6137"
+      }
+    ],
+    "trunkNum": "+380442246595",
+    "trunkName": "+380442246595"
+  },
+  {
+    "uuid": "562aa0bd8d9842cd95e4a581443f2e86",
+    "parentUuid": null,
+    "dialAt": 1431686088,
+    "bridgeAt": 1431686100,
+    "lgDirection": 4,
+    "lastEvent": "call.bridge",
+    "leg": {
+      "id": 36,
+      "ext": "001",
+      "displayName": "Иван Иванов"
+    },
+    "leg2": null,
+    "otherLegs": [
+      {
+        "id": "6137",
+        "name": "Telecom company",
+        "num": "+380442249895",
+        "companyName": null,
+        "url": "https://self.phonet.com.ua/features/crm/contacts/edit.jsp#/?id=6137"
+      }
+    ],
+    "trunkNum": "+380442246595",
+    "trunkName": "+380442246595"
+  },
+  {
+    "uuid": "68333cd7aa94421e89dbc8acfe5027bb",
+    "parentUuid": null,
+    "dialAt": 1431686001,
+    "bridgeAt": 1431686019,
+    "lgDirection": 1,
+    "lastEvent": "call.bridge",
+    "leg": {
+      "id": 36,
+      "ext": "001",
+      "displayName": "Иван Иванов"
+    },
+    "leg2": {
+      "id": 27,
+      "ext": "002",
+      "displayName": "Петр Петров"
+    },
+    "otherLegs": null,
+    "trunkNum": "+380442246595",
+    "trunkName": "+380442246595"
+  }
+]
