@@ -382,6 +382,17 @@ class RepositoryTest extends TestCase
         ];
     }
 
+    public function testInvalidResponseBody(): void
+    {
+        $this->mockSuccess('Not json content');
+
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('Response body content not json');
+
+        /** @noinspection PhpUnhandledExceptionInspection */
+        $this->repository->users();
+    }
+
     /**
      * @dataProvider limitProvider
      */
