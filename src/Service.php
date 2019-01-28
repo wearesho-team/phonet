@@ -8,27 +8,33 @@ use GuzzleHttp;
  * Class Service
  * @package Wearesho\Phonet
  */
-class Service extends Model
+class Service
 {
-    /** @var ConfigInterface */
-    protected $config;
+    /** @var Sender */
+    protected $sender;
+
+    public function __construct(Sender $sender)
+    {
+        $this->sender = $sender;
+    }
 
     /**
-     * {@inheritdoc}
+     * Return uuid of made call
      *
+     * @param string $callerNumber
+     * @param string $callTakerNumber
+     *
+     * @return string
      * @throws GuzzleHttp\Exception\GuzzleException
      */
     public function makeCall(string $callerNumber, string $callTakerNumber): string
     {
-        $uri = $this->formUri('rest/user/makeCall');
-        $credentials = [
-            static::CALLER_NUMBER => $callerNumber,
-            static::SUBJECT_NUMBER => $callTakerNumber,
-        ];
-        $request = new GuzzleHttp\Psr7\Request('POST', $uri, [], \json_encode($credentials));
+        $response = $this->sender->send('rest/user/makeCall', \json_encode([
+            'legExt'=> $callerNumber,
+            'otherLegNum' => $callTakerNumber,
+        ]));
+        $data = \json_decode((string)$response->getBody());
 
-        $response = $this->send($request);
-
-        return \json_decode((string)$response->getBody(), true)[static::UUID];
+        return $data->uuid;
     }
 }

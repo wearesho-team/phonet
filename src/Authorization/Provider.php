@@ -11,6 +11,14 @@ use Wearesho\Phonet\ConfigInterface;
  */
 class Provider implements ProviderInterface
 {
+    /** @var GuzzleHttp\ClientInterface */
+    protected $client;
+
+    public function __construct(GuzzleHttp\ClientInterface $client)
+    {
+        $this->client = $client;
+    }
+
     /**
      * @param ConfigInterface $config
      *
@@ -26,14 +34,17 @@ class Provider implements ProviderInterface
             [
                 'Content-Type' => 'application/json'
             ],
-            json_encode([
+            \json_encode([
                 'domain' => $domain,
                 'apiKey' => $config->getApiKey(),
             ])
         );
 
-        $response = $config->client()->send($request);
+        $response = $this->client->send($request);
 
-        return GuzzleHttp\Cookie\CookieJar::fromArray($response->getHeader('set-cookie'), $config->getDomain());
+        return GuzzleHttp\Cookie\CookieJar::fromArray(
+            $response->getHeader('set-cookie'),
+            $config->getDomain()
+        );
     }
 }

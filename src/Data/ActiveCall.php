@@ -31,16 +31,16 @@ class ActiveCall extends BaseCall
 
     public function __construct(
         string $uuid,
-        ?string $parentUuid,
         Carbon $dialAt,
-        ?Carbon $bridgeAt,
         Enum\Direction $direction,
         Enum\LastEvent $lastEvent,
         Employee $employeeCaller,
-        ?Employee $employeeCallTaker,
-        ?Collection\Subject $subjects,
         string $trunkNumber,
-        string $trunkName
+        string $trunkName,
+        string $parentUuid = null,
+        Carbon $bridgeAt = null,
+        Employee $employeeCallTaker = null,
+        Collection\Subject $subjects = null
     ) {
         $this->dialAt = $dialAt;
         $this->bridgeAt = $bridgeAt;
@@ -49,7 +49,7 @@ class ActiveCall extends BaseCall
         $this->trunkNumber = $trunkNumber;
         $this->trunkName = $trunkName;
 
-        parent::__construct($uuid, $parentUuid, $direction, $employeeCaller, $employeeCallTaker);
+        parent::__construct($uuid, $direction, $employeeCaller, $employeeCallTaker, $parentUuid);
     }
 
     public function jsonSerialize(): array

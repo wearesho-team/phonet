@@ -15,9 +15,11 @@ class CacheProvider extends Provider implements CacheProviderInterface
     /** @var CacheInterface */
     protected $cache;
 
-    public function __construct(CacheInterface $cache)
+    public function __construct(CacheInterface $cache, GuzzleHttp\ClientInterface $client)
     {
         $this->cache = $cache;
+
+        parent::__construct($client);
     }
 
     /**

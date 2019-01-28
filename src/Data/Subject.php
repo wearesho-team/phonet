@@ -27,12 +27,12 @@ class Subject implements \JsonSerializable
     protected $priority;
 
     public function __construct(
-        ?string $id,
-        ?string $name,
         string $number,
-        ?string $company,
         string $uri,
-        ?string $priority
+        string $id = null,
+        string $name = null,
+        string $company = null,
+        string $priority = null
     ) {
         $this->id = $id;
         $this->name = $name;

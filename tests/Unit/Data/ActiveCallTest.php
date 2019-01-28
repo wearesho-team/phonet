@@ -37,9 +37,7 @@ class ActiveCallTest extends TestCase
     {
         $this->activeCall = new Phonet\Data\ActiveCall(
             static::UUID,
-            static::PARENT_UUID,
             Carbon::make(static::DIAL_AT),
-            Carbon::make(static::BRIDGE_AT),
             Phonet\Enum\Direction::IN(),
             Phonet\Enum\LastEvent::HANGUP(),
             new Phonet\Data\Employee(
@@ -49,6 +47,10 @@ class ActiveCallTest extends TestCase
                 static::TYPE,
                 static::EMAIL
             ),
+            static::TRUNK_NUMBER,
+            static::TRUNK_NAME,
+            static::PARENT_UUID,
+            Carbon::make(static::BRIDGE_AT),
             new Phonet\Data\Employee(
                 static::ID,
                 static::INTERNAL_NUMBER,
@@ -65,9 +67,7 @@ class ActiveCallTest extends TestCase
                     static::URI,
                     static::PRIORITY
                 ),
-            ]),
-            static::TRUNK_NUMBER,
-            static::TRUNK_NAME
+            ])
         );
     }
 

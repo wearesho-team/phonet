@@ -35,10 +35,11 @@ class ProviderTest extends TestCase
         $stack = GuzzleHttp\HandlerStack::create($this->mock);
         $stack->push($history);
         $this->config = new Phonet\Config(
-            new GuzzleHttp\Client(['handler' => $stack,]),
-            new Phonet\Authorization\Provider(),
             static::DOMAIN,
             static::API_KEY
+        );
+        $this->fakeProvider = new Phonet\Authorization\Provider(
+            new GuzzleHttp\Client(['handler' => $stack,])
         );
     }
 
@@ -53,7 +54,7 @@ class ProviderTest extends TestCase
         );
 
         /** @noinspection PhpUnhandledExceptionInspection */
-        $cookies = $this->config->provider()->provide($this->config);
+        $cookies = $this->fakeProvider->provide($this->config);
 
         /** @var GuzzleHttp\Psr7\Request $sentRequest */
         $sentRequest = $this->container[0]['request'];

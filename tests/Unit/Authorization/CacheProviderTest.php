@@ -28,6 +28,9 @@ class CacheProviderTest extends TestCase
     /** @var GuzzleHttp\ClientInterface */
     protected $client;
 
+    /** @var Phonet\Authorization\CacheProviderInterface */
+    protected $provider;
+
     protected function setUp(): void
     {
         $this->container = [];
@@ -36,19 +39,19 @@ class CacheProviderTest extends TestCase
         $stack = GuzzleHttp\HandlerStack::create($this->mock);
         $stack->push($history);
         $this->client = new GuzzleHttp\Client(['handler' => $stack,]);
+        $this->config = new Phonet\Config(
+            static::DOMAIN,
+            static::API_KEY
+        );
     }
 
     public function testProvide(): void
     {
-        $this->config = new Phonet\Config(
-            $this->client,
-            new Phonet\Authorization\CacheProvider(
-                new SimpleCache\Cache(
-                    new SimpleCache\Drivers\MemoryCacheDriver()
-                )
+        $this->provider = new Phonet\Authorization\CacheProvider(
+            new SimpleCache\Cache(
+                new SimpleCache\Drivers\MemoryCacheDriver()
             ),
-            static::DOMAIN,
-            static::API_KEY
+            $this->client
         );
 
         $this->mock->append(
@@ -60,10 +63,10 @@ class CacheProviderTest extends TestCase
         );
 
         /** @noinspection PhpUnhandledExceptionInspection */
-        $cookie = $this->config->provider()->provide($this->config);
+        $cookie = $this->provider->provide($this->config);
 
         /** @noinspection PhpUnhandledExceptionInspection */
-        $duplicatedCookie = $this->config->provider()->provide($this->config);
+        $duplicatedCookie = $this->provider->provide($this->config);
 
         $this->assertEquals($cookie, $duplicatedCookie);
         $this->assertCount(1, $this->container, 'Only one HTTP request should be done');
@@ -71,19 +74,15 @@ class CacheProviderTest extends TestCase
 
     public function testFailedCache(): void
     {
-        $this->config = new Phonet\Config(
-            $this->client,
-            new Phonet\Authorization\CacheProvider(
-                new SimpleCache\Cache(new class extends SimpleCache\Drivers\MemoryCacheDriver
+        $this->provider = new Phonet\Authorization\CacheProvider(
+            new SimpleCache\Cache(new class extends SimpleCache\Drivers\MemoryCacheDriver
+            {
+                public function set(string $key, $value, int $ttl = null): bool
                 {
-                    public function set(string $key, $value, int $ttl = null): bool
-                    {
-                        return false;
-                    }
-                })
-            ),
-            static::DOMAIN,
-            static::API_KEY
+                    return false;
+                }
+            }),
+            $this->client
         );
 
         $this->mock->append(
@@ -97,17 +96,17 @@ class CacheProviderTest extends TestCase
         $this->expectException(Phonet\Authorization\CacheException::class);
 
         /** @noinspection PhpUnhandledExceptionInspection */
-        $this->config->provider()->provide($this->config);
+        $this->provider->provide($this->config);
     }
 
     public function testOverrideWithForceProvide(): void
     {
-        $cache = new SimpleCache\Cache(new SimpleCache\Drivers\MemoryCacheDriver());
-        $this->config = new Phonet\Config(
-            $this->client,
-            new Phonet\Authorization\CacheProvider($cache),
-            static::DOMAIN,
-            static::API_KEY
+        $cache = new SimpleCache\Cache(
+            new SimpleCache\Drivers\MemoryCacheDriver()
+        );
+        $this->provider = new Phonet\Authorization\CacheProvider(
+            $cache,
+            $this->client
         );
         /** @noinspection PhpUnhandledExceptionInspection */
         $cache->set(
@@ -124,10 +123,10 @@ class CacheProviderTest extends TestCase
         );
 
         /** @noinspection PhpUnhandledExceptionInspection */
-        $cookie = $this->config->provider()->provide($this->config);
+        $cookie = $this->provider->provide($this->config);
 
         /** @noinspection PhpUnhandledExceptionInspection */
-        $duplicatedCookie = $this->config->provider()->provide($this->config);
+        $duplicatedCookie = $this->provider->provide($this->config);
 
         $this->assertEquals($cookie, $duplicatedCookie);
         $this->assertCount(1, $this->container, 'Only one HTTP request should be done');

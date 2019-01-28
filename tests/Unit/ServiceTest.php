@@ -3,22 +3,58 @@
 namespace Wearesho\Phonet\Tests\Unit;
 
 use GuzzleHttp;
+use PHPUnit\Framework\TestCase;
 use Wearesho\Phonet;
+use chillerlan\SimpleCache;
 
 /**
  * Class ServiceTest
  * @package Wearesho\Phonet\Tests\Unit
  */
-class ServiceTest extends ModelTestCase
+class ServiceTest extends TestCase
 {
+    protected const DOMAIN = 'test.phonet.com.ua';
+    protected const API_KEY = 'test-api-key';
+
+    /** @var array */
+    protected $container;
+
+    /** @var GuzzleHttp\Handler\MockHandler */
+    protected $mock;
+
+    /** @var SimpleCache\Cache */
+    protected $cache;
+
+    /** @var Phonet\ConfigInterface */
+    protected $config;
+
+    /** @var Phonet\Sender */
+    protected $sender;
+
     /** @var Phonet\Service */
     protected $service;
 
     protected function setUp(): void
     {
-        parent::setUp();
-
-        $this->service = new Phonet\Service($this->config);
+        $this->container = [];
+        $history = GuzzleHttp\Middleware::history($this->container);
+        $this->mock = new GuzzleHttp\Handler\MockHandler();
+        $stack = GuzzleHttp\HandlerStack::create($this->mock);
+        $stack->push($history);
+        $client = new GuzzleHttp\Client([
+            'handler' => $stack,
+        ]);
+        $this->cache = new SimpleCache\Cache(new SimpleCache\Drivers\MemoryCacheDriver());
+        $this->config = new Phonet\Config(
+            static::DOMAIN,
+            static::API_KEY
+        );
+        $this->sender = new Phonet\Sender(
+            $client,
+            $this->config,
+            new Phonet\Authorization\CacheProvider($this->cache, $client)
+        );
+        $this->service = new Phonet\Service($this->sender);
     }
 
     public function testSuccessMakeCall(): void

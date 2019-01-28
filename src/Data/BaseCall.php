@@ -27,10 +27,10 @@ abstract class BaseCall implements \JsonSerializable
 
     public function __construct(
         string $uuid,
-        ?string $parentUuid,
         Direction $direction,
         Employee $employeeCaller,
-        ?Employee $employeeCallTaker
+        Employee $employeeCallTaker = null,
+        string $parentUuid = null
     ) {
         $this->uuid = $uuid;
         $this->parentUuid = $parentUuid;

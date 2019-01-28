@@ -4,22 +4,58 @@ namespace Wearesho\Phonet\Tests\Unit;
 
 use Carbon\Carbon;
 use GuzzleHttp;
+use PHPUnit\Framework\TestCase;
 use Wearesho\Phonet;
+use chillerlan\SimpleCache;
 
 /**
  * Class RepositoryTest
  * @package Wearesho\Phonet\Tests\Unit
  */
-class RepositoryTest extends ModelTestCase
+class RepositoryTest extends TestCase
 {
+    protected const DOMAIN = 'test.phonet.com.ua';
+    protected const API_KEY = 'test-api-key';
+
+    /** @var array */
+    protected $container;
+
+    /** @var GuzzleHttp\Handler\MockHandler */
+    protected $mock;
+
+    /** @var SimpleCache\Cache */
+    protected $cache;
+
+    /** @var Phonet\ConfigInterface */
+    protected $config;
+
+    /** @var Phonet\Sender */
+    protected $sender;
+
     /** @var Phonet\Repository */
     protected $repository;
 
     protected function setUp(): void
     {
-        parent::setUp();
-
-        $this->repository = new Phonet\Repository($this->config);
+        $this->container = [];
+        $history = GuzzleHttp\Middleware::history($this->container);
+        $this->mock = new GuzzleHttp\Handler\MockHandler();
+        $stack = GuzzleHttp\HandlerStack::create($this->mock);
+        $stack->push($history);
+        $client = new GuzzleHttp\Client([
+            'handler' => $stack,
+        ]);
+        $this->cache = new SimpleCache\Cache(new SimpleCache\Drivers\MemoryCacheDriver());
+        $this->config = new Phonet\Config(
+            static::DOMAIN,
+            static::API_KEY
+        );
+        $this->sender = new Phonet\Sender(
+            $client,
+            $this->config,
+            new Phonet\Authorization\CacheProvider($this->cache, $client)
+        );
+        $this->repository = new Phonet\Repository($this->sender);
     }
 
     public function testSuccessActiveCalls(): Phonet\Data\Collection\ActiveCall
@@ -33,6 +69,7 @@ class RepositoryTest extends ModelTestCase
         /** @noinspection PhpUnhandledExceptionInspection */
         $activeCalls = $this->repository->activeCalls();
 
+        /** @var GuzzleHttp\Psr7\Request $authRequest */
         $authRequest = $this->container[0]['request'];
         $this->assertJsonStringEqualsJsonString(
             \json_encode(['domain' => static::DOMAIN, 'apiKey' => static::API_KEY]),
@@ -71,6 +108,7 @@ class RepositoryTest extends ModelTestCase
         /** @noinspection PhpUnhandledExceptionInspection */
         $activeCalls = $this->repository->activeCalls();
 
+        /** @var GuzzleHttp\Psr7\Request $authRequest */
         $authRequest = $this->container[1]['request'];
         $this->assertJsonStringEqualsJsonString(
             \json_encode(['domain' => static::DOMAIN, 'apiKey' => static::API_KEY]),
@@ -207,6 +245,7 @@ class RepositoryTest extends ModelTestCase
         $this->mockSuccess($this->getCompleteCallsJson());
         $calls = $this->getCompleteCallsByMethod($method);
 
+        /** @var GuzzleHttp\Psr7\Request $authRequest */
         $authRequest = $this->container[0]['request'];
         $this->assertJsonStringEqualsJsonString(
             \json_encode(['domain' => static::DOMAIN, 'apiKey' => static::API_KEY]),
@@ -246,6 +285,7 @@ class RepositoryTest extends ModelTestCase
 
         $calls = $this->getCompleteCallsByMethod($method);
 
+        /** @var GuzzleHttp\Psr7\Request $authRequest */
         $authRequest = $this->container[1]['request'];
         $this->assertJsonStringEqualsJsonString(
             \json_encode(['domain' => static::DOMAIN, 'apiKey' => static::API_KEY]),
@@ -324,9 +364,12 @@ class RepositoryTest extends ModelTestCase
 
         $this->getCompleteCallsByMethod($method);
 
+        /** @var GuzzleHttp\Psr7\Request $request */
+        $request = (string)$this->container[1]['request'];
+
         $this->assertEquals(
             'https://' . static::DOMAIN . $api,
-            (string)$this->container[1]['request']->getUri()
+            $request->getUri()
         );
     }
 
@@ -390,10 +433,12 @@ class RepositoryTest extends ModelTestCase
     public function testSuccessUsers(): void
     {
         $this->mockSuccess($this->getUsersJson());
+        /** @noinspection PhpUnhandledExceptionInspection */
         $users = $this->repository->users();
 
         $this->parseUsers($users);
 
+        /** @var GuzzleHttp\Psr7\Request $authRequest */
         $authRequest = $this->container[0]['request'];
         $this->assertJsonStringEqualsJsonString(
             \json_encode(['domain' => static::DOMAIN, 'apiKey' => static::API_KEY]),

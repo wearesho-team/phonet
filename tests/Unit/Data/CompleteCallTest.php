@@ -39,17 +39,17 @@ class CompleteCallTest extends TestCase
 
         $this->completeCall = new CompleteCall(
             static::UUID,
-            static::PARENT_UUID,
             Direction::INTERNAL(),
             new Employee(static::ID, static::INTERNAL_NUMBER, static::DISPLAY_NAME, static::TYPE, static::EMAIL),
-            new Employee(static::ID, static::INTERNAL_NUMBER, static::DISPLAY_NAME, static::TYPE, static::EMAIL),
             Carbon::getTestNow(),
-            static::SUBJECT_NUMBER,
-            static::SUBJECT_NAME,
             static::DISPOSITION,
-            static::TRUNK,
             static::BILL_SECS,
             static::DURATION,
+            static::PARENT_UUID,
+            new Employee(static::ID, static::INTERNAL_NUMBER, static::DISPLAY_NAME, static::TYPE, static::EMAIL),
+            static::SUBJECT_NUMBER,
+            static::SUBJECT_NAME,
+            static::TRUNK,
             static::TRANSFER_HISTORY,
             static::AUDIO_REC_URL
         );
@@ -65,13 +65,6 @@ class CompleteCallTest extends TestCase
         $this->assertInstanceOf(CompleteCall::class, $this->completeCall);
     }
 
-    /**
-     * @depends testInstance
-     *
-     * @param CompleteCall $completeCall
-     *
-     * @return CompleteCall
-     */
     public function testJsonSerialize(): void
     {
         $this->assertEquals(

@@ -40,19 +40,19 @@ class CompleteCall extends BaseCall
 
     public function __construct(
         string $uuid,
-        ?string $parentUuid,
         Direction $direction,
         Employee $employeeCaller,
-        ?Employee $employeeCallTaker,
         Carbon $endAt,
-        ?string $subjectNumber,
-        ?string $subjectName,
         int $disposition,
-        ?string $trunk,
         int $billSecs,
         int $duration,
-        ?string $transferHistory,
-        ?string $audioRecUrl
+        string $parentUuid = null,
+        Employee $employeeCallTaker = null,
+        string $subjectNumber = null,
+        string $subjectName = null,
+        string $trunk = null,
+        string $transferHistory = null,
+        string $audioRecUrl = null
     ) {
         $this->endAt = $endAt;
         $this->subjectNumber = $subjectNumber;
@@ -64,7 +64,7 @@ class CompleteCall extends BaseCall
         $this->transferHistory = $transferHistory;
         $this->audioRecUrl = $audioRecUrl;
 
-        parent::__construct($uuid, $parentUuid, $direction, $employeeCaller, $employeeCallTaker);
+        parent::__construct($uuid, $direction, $employeeCaller, $employeeCallTaker, $parentUuid);
     }
 
     public function jsonSerialize(): array
