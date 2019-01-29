@@ -1,5 +1,7 @@
 # Phonet Api integration
 
+You can receive original docs on [phonet](https://phonet.com.ua/) site
+
 ## Installation
 
 ```bash
