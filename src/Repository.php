@@ -166,9 +166,9 @@ class Repository
         $directions = $directions
             ?
             [
-                'directions' => $directions->map(function (Enum\Direction $direction): int {
+                'directions' => \array_map(function (Enum\Direction $direction): int {
                     return $direction->getValue();
-                })
+                }, $directions->getArrayCopy())
             ]
             :
             [];
