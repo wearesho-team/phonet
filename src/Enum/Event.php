@@ -5,14 +5,14 @@ namespace Wearesho\Phonet\Enum;
 use MyCLabs\Enum\Enum;
 
 /**
- * Class LastEvent
+ * Class Event
  * @package Wearesho\Phonet\Enum
  *
- * @method static LastEvent DIAL()
- * @method static LastEvent BRIDGE()
- * @method static LastEvent HANGUP()
+ * @method static Event DIAL()
+ * @method static Event BRIDGE()
+ * @method static Event HANGUP()
  */
-final class LastEvent extends Enum
+final class Event extends Enum
 {
     public const DIAL = 'call.dial';
     public const BRIDGE = 'call.bridge';
