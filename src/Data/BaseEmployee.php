@@ -6,16 +6,9 @@ namespace Wearesho\Phonet\Data;
  * Class BaseEmployee
  * @package Wearesho\Phonet\Data
  */
-abstract class BaseEmployee implements \JsonSerializable
+abstract class BaseEmployee implements BaseEmployeeInterface
 {
-    /** @var int */
-    protected $id;
-
-    /** @var string */
-    protected $internalNumber;
-
-    /** @var string */
-    protected $displayName;
+    use BaseEmployeeTrait;
 
     /**
      * BaseEmployee constructor.
@@ -29,29 +22,5 @@ abstract class BaseEmployee implements \JsonSerializable
         $this->id = $id;
         $this->internalNumber = $internalNumber;
         $this->displayName = $displayName;
-    }
-
-    public function jsonSerialize(): array
-    {
-        return [
-            'id' => $this->id,
-            'internalNumber' => $this->internalNumber,
-            'displayName' => $this->displayName,
-        ];
-    }
-
-    public function getId(): int
-    {
-        return $this->id;
-    }
-
-    public function getInternalNumber(): string
-    {
-        return $this->internalNumber;
-    }
-
-    public function getDisplayName(): string
-    {
-        return $this->displayName;
     }
 }
