@@ -6,25 +6,9 @@ namespace Wearesho\Phonet\Data;
  * Class Subject
  * @package Wearesho\Phonet\Data
  */
-class Subject implements \JsonSerializable
+class Subject implements SubjectInterface
 {
-    /** @var string|null */
-    protected $id;
-
-    /** @var string|null */
-    protected $name;
-
-    /** @var string */
-    protected $number;
-
-    /** @var string|null */
-    protected $company;
-
-    /** @var string */
-    protected $uri;
-
-    /** @var string|null */
-    protected $priority;
+    use SubjectTrait;
 
     public function __construct(
         string $number,
@@ -40,47 +24,5 @@ class Subject implements \JsonSerializable
         $this->company = $company;
         $this->uri = $uri;
         $this->priority = $priority;
-    }
-
-    public function jsonSerialize(): array
-    {
-        return [
-            'id' => $this->id,
-            'name' => $this->name,
-            'number' => $this->number,
-            'company' => $this->company,
-            'uri' => $this->uri,
-            'priority' => $this->priority,
-        ];
-    }
-
-    public function getId(): ?string
-    {
-        return $this->id;
-    }
-
-    public function getName(): ?string
-    {
-        return $this->name;
-    }
-
-    public function getNumber(): string
-    {
-        return $this->number;
-    }
-
-    public function getCompany(): ?string
-    {
-        return $this->company;
-    }
-
-    public function getUri(): string
-    {
-        return $this->uri;
-    }
-
-    public function getPriority(): ?string
-    {
-        return $this->priority;
     }
 }

@@ -249,7 +249,7 @@ class Repository
                 $call[static::UUID],
                 Carbon::createFromTimestamp($call[static::DIAL_AT]),
                 new Enum\Direction($call[static::DIRECTION]),
-                new Enum\LastEvent($call[static::LAST_EVENT]),
+                new Enum\Event($call[static::LAST_EVENT]),
                 new Data\Employee($caller[static::ID], $caller[static::EMPLOYEE_NUMBER], $caller[static::DISPLAY_NAME]),
                 $call[static::TRUNK_NUMBER],
                 $call[static::TRUNK_NAME],

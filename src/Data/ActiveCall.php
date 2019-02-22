@@ -17,7 +17,7 @@ class ActiveCall extends BaseCall
     /** @var Carbon|null */
     protected $bridgeAt;
 
-    /** @var Enum\LastEvent */
+    /** @var Enum\Event */
     protected $lastEvent;
 
     /** @var Collection\Subject|null */
@@ -33,7 +33,7 @@ class ActiveCall extends BaseCall
         string $uuid,
         Carbon $dialAt,
         Enum\Direction $direction,
-        Enum\LastEvent $lastEvent,
+        Enum\Event $lastEvent,
         Employee $employeeCaller,
         string $trunkNumber,
         string $trunkName,
@@ -79,7 +79,7 @@ class ActiveCall extends BaseCall
         return $this->bridgeAt;
     }
 
-    public function getLastEvent(): Enum\LastEvent
+    public function getLastEvent(): Enum\Event
     {
         return $this->lastEvent;
     }
