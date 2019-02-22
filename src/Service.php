@@ -19,19 +19,31 @@ class Service
     }
 
     /**
-     * Return uuid of made call
+     * Start new call
      *
      * @param string $callerNumber
      * @param string $callTakerNumber
      *
-     * @return string
+     * @return string Uuid of made call
      * @throws GuzzleHttp\Exception\GuzzleException
      */
     public function makeCall(string $callerNumber, string $callTakerNumber): string
     {
-        return $this->sender->send('rest/user/makeCall', \json_encode([
+        return $this->sender->post('rest/user/makeCall', \json_encode([
             'legExt'=> $callerNumber,
             'otherLegNum' => $callTakerNumber,
         ]))['uuid'];
+    }
+
+    /**
+     * End a call / conversation
+     *
+     * @param string $uuid
+     *
+     * @throws GuzzleHttp\Exception\GuzzleException
+     */
+    public function hangup(string $uuid): void
+    {
+        $this->sender->get("rest/calls/active/{$uuid}/" . RestInterface::HANGUP_CALL);
     }
 }

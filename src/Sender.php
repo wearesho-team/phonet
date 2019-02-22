@@ -10,7 +10,7 @@ use Wearesho\Phonet\Authorization\CacheProviderInterface;
  * Class Sender
  * @package Wearesho\Phonet
  */
-class Sender
+class Sender implements RestInterface
 {
     protected const STATUS_FORBIDDEN = 403;
 
@@ -35,12 +35,37 @@ class Sender
 
     /**
      * @param string $api
+     * @param string|null $body
+     *
+     * @return array
+     * @throws GuzzleHttp\Exception\GuzzleException
+     */
+    public function get(string $api, string $body = null): array
+    {
+        return $this->send('GET', $api, $body);
+    }
+
+    /**
+     * @param string $api
+     * @param string|null $body
+     *
+     * @return array
+     * @throws GuzzleHttp\Exception\GuzzleException
+     */
+    public function post(string $api, string $body = null): array
+    {
+        return $this->send('POST', $api, $body);
+    }
+    
+    /**
+     * @param string $method
+     * @param string $api
      * @param string $body
      *
      * @return array Json
      * @throws GuzzleHttp\Exception\GuzzleException
      */
-    public function send(string $api, ?string $body): array
+    public function send(string $method, string $api, ?string $body): array
     {
         $options = [
             GuzzleHttp\RequestOptions::HEADERS => [
@@ -52,9 +77,10 @@ class Sender
 
         try {
             return $this->parseResponse(
-                $this->client->request('POST', $uri, \array_merge([
+                $this->client->request($method, $uri, \array_merge([
                     GuzzleHttp\RequestOptions::COOKIES => $this->provider->provide($this->config)
-                ], $options))
+                ], $options)),
+                $api
             );
         } catch (GuzzleHttp\Exception\ClientException $exception) {
             if ($exception->hasResponse()
@@ -62,9 +88,10 @@ class Sender
                 && $this->provider instanceof Authorization\CacheProviderInterface
             ) {
                 return $this->parseResponse(
-                    $this->client->request('POST', $uri, \array_merge([
+                    $this->client->request($method, $uri, \array_merge([
                         GuzzleHttp\RequestOptions::COOKIES => $this->provider->forceProvide($this->config)
-                    ], $options))
+                    ], $options)),
+                    $api
                 );
             }
 
@@ -72,8 +99,12 @@ class Sender
         }
     }
 
-    private function parseResponse(ResponseInterface $response): array
+    private function parseResponse(ResponseInterface $response, string $rest): array
     {
+        if (\preg_match('/\/' . RestInterface::HANGUP_CALL . '/', $rest)) {
+            return [];
+        }
+        
         $json = \json_decode((string)$response->getBody(), true);
 
         if (\json_last_error() !== JSON_ERROR_NONE) {
