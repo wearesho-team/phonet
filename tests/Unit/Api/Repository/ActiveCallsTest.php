@@ -105,7 +105,7 @@ class ActiveCallsTest extends TestCase
         $this->assertEquals('47a968893984475b8c20e29dec144ce3', $call->getUuid());
         $this->assertNull($call->getParentUuid());
         $this->assertEquals(Phonet\Enum\Direction::OUT(), $call->getDirection());
-        $this->assertEquals(Phonet\Enum\LastEvent::DIAL(), $call->getLastEvent());
+        $this->assertEquals(Phonet\Enum\Event::DIAL(), $call->getLastEvent());
         $this->assertEquals(1431686100, $call->getDialAt()->timestamp);
         $this->assertNull($call->getBridgeAt());
         $this->assertEquals(36, $call->getEmployeeCaller()->getId());
@@ -132,7 +132,7 @@ class ActiveCallsTest extends TestCase
         $this->assertEquals('562aa0bd8d9842cd95e4a581443f2e86', $call->getUuid());
         $this->assertNull($call->getParentUuid());
         $this->assertEquals(Phonet\Enum\Direction::IN(), $call->getDirection());
-        $this->assertEquals(Phonet\Enum\LastEvent::BRIDGE(), $call->getLastEvent());
+        $this->assertEquals(Phonet\Enum\Event::BRIDGE(), $call->getLastEvent());
         $this->assertEquals(1431686088, $call->getDialAt()->timestamp);
         $this->assertEquals(1431686100, $call->getBridgeAt()->timestamp);
         $this->assertEquals(36, $call->getEmployeeCaller()->getId());
@@ -170,7 +170,7 @@ class ActiveCallsTest extends TestCase
         $this->assertEquals('68333cd7aa94421e89dbc8acfe5027bb', $call->getUuid());
         $this->assertNull($call->getParentUuid());
         $this->assertEquals(Phonet\Enum\Direction::INTERNAL(), $call->getDirection());
-        $this->assertEquals(Phonet\Enum\LastEvent::BRIDGE(), $call->getLastEvent());
+        $this->assertEquals(Phonet\Enum\Event::BRIDGE(), $call->getLastEvent());
         $this->assertEquals(1431686001, $call->getDialAt()->timestamp);
         $this->assertEquals(1431686019, $call->getBridgeAt()->timestamp);
         $this->assertEquals(36, $call->getEmployeeCaller()->getId());
