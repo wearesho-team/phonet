@@ -17,6 +17,9 @@ class RepositoryTest extends TestCase
     protected const DOMAIN = 'test.phonet.com.ua';
     protected const API_KEY = 'test-api-key';
 
+    protected const FROM = '2018-03-12';
+    protected const TO = '2019-03-12';
+
     /** @var array */
     protected $container;
 
@@ -37,6 +40,8 @@ class RepositoryTest extends TestCase
 
     protected function setUp(): void
     {
+        Carbon::setTestNow(Carbon::now()->toDateTimeString());
+
         $this->container = [];
         $history = GuzzleHttp\Middleware::history($this->container);
         $this->mock = new GuzzleHttp\Handler\MockHandler();
@@ -79,6 +84,8 @@ class RepositoryTest extends TestCase
         /** @var GuzzleHttp\Psr7\Request $sentRequest */
         $sentRequest = $this->container[1]['request'];
 
+        $this->assertEmpty($sentRequest->getBody()->getContents());
+        $this->assertEquals('GET', $sentRequest->getMethod());
         $this->assertEquals(
             ["JSESSIONID=test-id"],
             $sentRequest->getHeader('Cookie')
@@ -118,6 +125,8 @@ class RepositoryTest extends TestCase
         /** @var GuzzleHttp\Psr7\Request $sentRequest */
         $sentRequest = $this->container[2]['request'];
 
+        $this->assertEmpty($sentRequest->getBody()->getContents());
+        $this->assertEquals('GET', $sentRequest->getMethod());
         $this->assertEquals(
             ["JSESSIONID=test-id"],
             $sentRequest->getHeader('Cookie')
@@ -256,6 +265,19 @@ class RepositoryTest extends TestCase
         $sentRequest = $this->container[1]['request'];
 
         $this->assertEquals(
+            [
+                'timeFrom' => Carbon::make(static::FROM)->timestamp,
+                'timeTo' => Carbon::make(static::TO)->timestamp,
+                'limit' => 50,
+                'offset' => 0,
+                'directions' => [
+                    Phonet\Enum\Direction::OUT,
+                ]
+            ],
+            json_decode($sentRequest->getBody()->getContents(), true)
+        );
+        $this->assertEquals('GET', $sentRequest->getMethod());
+        $this->assertEquals(
             ["JSESSIONID=test-id"],
             $sentRequest->getHeader('Cookie')
         );
@@ -296,6 +318,19 @@ class RepositoryTest extends TestCase
         $sentRequest = $this->container[2]['request'];
 
         $this->assertEquals(
+            [
+                'timeFrom' => Carbon::make(static::FROM)->timestamp,
+                'timeTo' => Carbon::make(static::TO)->timestamp,
+                'limit' => 50,
+                'offset' => 0,
+                'directions' => [
+                    Phonet\Enum\Direction::OUT,
+                ]
+            ],
+            json_decode($sentRequest->getBody()->getContents(), true)
+        );
+        $this->assertEquals('GET', $sentRequest->getMethod());
+        $this->assertEquals(
             ["JSESSIONID=test-id"],
             $sentRequest->getHeader('Cookie')
         );
@@ -335,18 +370,6 @@ class RepositoryTest extends TestCase
         $this->expectExceptionCode(400);
 
         $this->getCompleteCallsByMethod($method);
-
-        /** @var GuzzleHttp\Psr7\Request $sentRequest */
-        $sentRequest = $this->container[1]['request'];
-
-        $this->assertEquals(
-            ["JSESSIONID=test-id"],
-            $sentRequest->getHeader('Cookie')
-        );
-        $this->assertEquals(
-            'https://' . static::DOMAIN . $api,
-            (string)$sentRequest->getUri()
-        );
     }
 
     /**
@@ -363,14 +386,6 @@ class RepositoryTest extends TestCase
         $this->expectExceptionCode(404);
 
         $this->getCompleteCallsByMethod($method);
-
-        /** @var GuzzleHttp\Psr7\Request $request */
-        $request = (string)$this->container[1]['request'];
-
-        $this->assertEquals(
-            'https://' . static::DOMAIN . $api,
-            $request->getUri()
-        );
     }
 
     public function completeCallsProvider(): array
@@ -459,6 +474,7 @@ class RepositoryTest extends TestCase
         /** @var GuzzleHttp\Psr7\Request $sentRequest */
         $sentRequest = $this->container[1]['request'];
 
+        $this->assertEquals('GET', $sentRequest->getMethod());
         $this->assertEquals(
             ["JSESSIONID=test-id"],
             $sentRequest->getHeader('Cookie')
@@ -538,13 +554,13 @@ class RepositoryTest extends TestCase
 
     protected function getCompleteCallsByMethod(
         string $method,
-        $limit = 50,
-        $offset = 0
+        int $limit = 50,
+        int $offset = 0
     ): Phonet\Data\Collection\CompleteCall {
         /** @noinspection PhpUnhandledExceptionInspection */
         return $this->repository->{$method}(
-            Carbon::now(),
-            Carbon::now()->addMinute(1),
+            $from ?? Carbon::make(static::FROM),
+            $to ?? Carbon::make(static::TO),
             new Phonet\Data\Collection\Direction([
                 Phonet\Enum\Direction::OUT(),
             ]),
