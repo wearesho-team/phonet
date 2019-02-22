@@ -23,7 +23,7 @@ class Provider implements ProviderInterface
      * @param ConfigInterface $config
      *
      * @return GuzzleHttp\Cookie\CookieJarInterface
-     * @throws GuzzleHttp\Exception\GuzzleException
+     * @throws ProviderException
      */
     public function provide(ConfigInterface $config): GuzzleHttp\Cookie\CookieJarInterface
     {
@@ -40,7 +40,11 @@ class Provider implements ProviderInterface
             ])
         );
 
-        $response = $this->client->send($request);
+        try {
+            $response = $this->client->send($request);
+        } catch (GuzzleHttp\Exception\GuzzleException $exception) {
+            throw new ProviderException($domain, $exception->getMessage(), $exception->getCode(), $exception);
+        }
 
         return GuzzleHttp\Cookie\CookieJar::fromArray(
             $response->getHeader('set-cookie'),

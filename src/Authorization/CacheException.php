@@ -13,12 +13,12 @@ class CacheException extends \RuntimeException
     /** @var string */
     protected $cacheKey;
 
-    /** @var GuzzleHttp\Cookie\CookieJarInterface */
+    /** @var GuzzleHttp\Cookie\CookieJarInterface|null */
     protected $cookieJar;
 
     public function __construct(
         string $cacheKey,
-        GuzzleHttp\Cookie\CookieJarInterface $cookieJar,
+        GuzzleHttp\Cookie\CookieJarInterface $cookieJar = null,
         string $message = "",
         int $code = 0,
         \Throwable $previous = null
@@ -34,7 +34,7 @@ class CacheException extends \RuntimeException
         return $this->cacheKey;
     }
 
-    public function getCookieJar(): GuzzleHttp\Cookie\CookieJarInterface
+    public function getCookieJar(): ?GuzzleHttp\Cookie\CookieJarInterface
     {
         return $this->cookieJar;
     }

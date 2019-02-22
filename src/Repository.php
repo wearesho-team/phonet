@@ -56,7 +56,7 @@ class Repository
 
     /**
      * @return Data\Collection\ActiveCall
-     * @throws GuzzleHttp\Exception\GuzzleException
+     * @throws Exception
      */
     public function activeCalls(): Data\Collection\ActiveCall
     {
@@ -73,7 +73,7 @@ class Repository
      * @param int $offset
      *
      * @return Data\Collection\CompleteCall
-     * @throws GuzzleHttp\Exception\GuzzleException
+     * @throws Exception
      */
     public function companyCalls(
         \DateTimeInterface $from,
@@ -93,9 +93,14 @@ class Repository
     }
 
     /**
-     * {@inheritdoc}
+     * @param \DateTimeInterface $from
+     * @param \DateTimeInterface $to
+     * @param Data\Collection\Direction $directions
+     * @param int $limit
+     * @param int $offset
      *
-     * @throws GuzzleHttp\Exception\GuzzleException
+     * @return Data\Collection\CompleteCall
+     * @throws Exception
      */
     public function missedCalls(
         \DateTimeInterface $from,
@@ -122,7 +127,7 @@ class Repository
      * @param int $offset
      *
      * @return Data\Collection\CompleteCall
-     * @throws GuzzleHttp\Exception\GuzzleException
+     * @throws Exception
      */
     public function usersCalls(
         \DateTimeInterface $from,
@@ -150,7 +155,7 @@ class Repository
      * @param int $offset
      *
      * @return Data\Collection\CompleteCall
-     * @throws GuzzleHttp\Exception\GuzzleException
+     * @throws Exception
      */
     protected function getCompleteCalls(
         string $api,
@@ -185,7 +190,7 @@ class Repository
 
     /**
      * @return Data\Collection\Employee
-     * @throws GuzzleHttp\Exception\GuzzleException
+     * @throws Exception
      */
     public function users(): Data\Collection\Employee
     {

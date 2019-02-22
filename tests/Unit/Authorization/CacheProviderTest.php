@@ -131,4 +131,38 @@ class CacheProviderTest extends TestCase
         $this->assertEquals($cookie, $duplicatedCookie);
         $this->assertCount(1, $this->container, 'Only one HTTP request should be done');
     }
+
+    public function testFailedGetCache(): void
+    {
+        $cache = $this->createMock(SimpleCache\Cache::class);
+        $cache->expects($this->once())
+            ->method('get')
+            ->willThrowException(new SimpleCache\SimpleCacheInvalidArgumentException());
+        $this->provider = new Phonet\Authorization\CacheProvider($cache, $this->client);
+
+        $this->expectException(Phonet\Authorization\CacheException::class);
+
+        $this->provider->provide($this->config);
+    }
+
+    public function testFailedIsSetCache(): void
+    {
+        $cache = $this->createMock(SimpleCache\Cache::class);
+        $cache->expects($this->once())
+            ->method('set')
+            ->willThrowException(new SimpleCache\SimpleCacheInvalidArgumentException());
+        $this->provider = new Phonet\Authorization\CacheProvider($cache, $this->client);
+
+        $this->mock->append(
+            new GuzzleHttp\Psr7\Response(200, [
+                'set-cookie' => [
+                    'JSESSIONID' => 'test-id'
+                ]
+            ])
+        );
+
+        $this->expectException(Phonet\Authorization\CacheException::class);
+
+        $this->provider->forceProvide($this->config);
+    }
 }
