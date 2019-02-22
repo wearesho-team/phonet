@@ -10,8 +10,7 @@ before_script:
     - travis_retry composer install --no-interaction --prefer-source
 
 script:
-    - composer lint
-    - travis_retry composer cover
+    - travis_retry composer build
 
 after_success:
     - bash <(curl -s https://codecov.io/bash)
