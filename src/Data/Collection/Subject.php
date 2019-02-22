@@ -13,6 +13,6 @@ class Subject extends BaseCollection
 {
     public function type(): string
     {
-        return Data\Subject::class;
+        return Data\SubjectInterface::class;
     }
 }

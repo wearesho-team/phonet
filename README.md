@@ -1,5 +1,7 @@
 # Phonet Api integration
 
+You can receive original docs on [phonet](https://phonet.com.ua/) site
+
 ## Installation
 
 ```bash
@@ -12,6 +14,13 @@ Exist two implementation of configurations:
 - [Config](./src/Config.php) - custom config
 - [EnvironmentConfig](./src/EnvironmentConfig.php) - based on
 [Horatius\Environment\Config](https://github.com/Horat1us/environment-config)
+
+Available environment variables:
+
+|variable|required|description|
+|--------|--------|-----------|
+|PHONET_DOMAIN|Yes|Domain name of your cms\system|
+|PHONET_API_KEY|Yes|Special api key that ypu can receive in your Phonet account|
 
 Use [ConfigInterface](./src/ConfigInterface.php) to create your custom config
 

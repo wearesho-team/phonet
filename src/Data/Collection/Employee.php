@@ -13,6 +13,6 @@ class Employee extends BaseCollection
 {
     public function type(): string
     {
-        return Data\Employee::class;
+        return Data\BaseEmployee::class;
     }
 }

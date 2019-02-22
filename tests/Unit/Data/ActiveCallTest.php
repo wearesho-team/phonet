@@ -39,7 +39,7 @@ class ActiveCallTest extends TestCase
             static::UUID,
             Carbon::make(static::DIAL_AT),
             Phonet\Enum\Direction::IN(),
-            Phonet\Enum\LastEvent::HANGUP(),
+            Phonet\Enum\Event::HANGUP(),
             new Phonet\Data\Employee(
                 static::ID,
                 static::INTERNAL_NUMBER,
@@ -127,7 +127,7 @@ class ActiveCallTest extends TestCase
      */
     public function testGetLastEvent(): void
     {
-        $this->assertEquals(Phonet\Enum\LastEvent::HANGUP(), $this->activeCall->getLastEvent());
+        $this->assertEquals(Phonet\Enum\Event::HANGUP(), $this->activeCall->getLastEvent());
     }
 
     /**
@@ -212,7 +212,7 @@ class ActiveCallTest extends TestCase
                 'dialAt' => Carbon::make(static::DIAL_AT),
                 'bridgeAt' => Carbon::make(static::BRIDGE_AT),
                 'direction' => Phonet\Enum\Direction::IN(),
-                'lastEvent' => Phonet\Enum\LastEvent::HANGUP(),
+                'lastEvent' => Phonet\Enum\Event::HANGUP(),
                 'employeeCaller' => new Phonet\Data\Employee(
                     static::ID,
                     static::INTERNAL_NUMBER,

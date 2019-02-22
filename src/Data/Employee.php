@@ -6,17 +6,8 @@ namespace Wearesho\Phonet\Data;
  * Class Employee
  * @package Wearesho\Phonet\Data
  */
-class Employee implements \JsonSerializable
+class Employee extends BaseEmployee
 {
-    /** @var int */
-    protected $id;
-
-    /** @var string */
-    protected $internalNumber;
-
-    /** @var string */
-    protected $displayName;
-
     /** @var string|null */
     protected $email;
 
@@ -30,37 +21,18 @@ class Employee implements \JsonSerializable
         int $type = null,
         string $email = null
     ) {
-        $this->id = $id;
-        $this->internalNumber = $internalNumber;
-        $this->displayName = $displayName;
+        parent::__construct($id, $internalNumber, $displayName);
+
         $this->type = $type;
         $this->email = $email;
     }
 
     public function jsonSerialize(): array
     {
-        return [
-            'id' => $this->id,
-            'internalNumber' => $this->internalNumber,
-            'displayName' => $this->displayName,
+        return \array_merge(parent::jsonSerialize(), [
             'type' => $this->type,
             'email' => $this->email,
-        ];
-    }
-
-    public function getId(): int
-    {
-        return $this->id;
-    }
-
-    public function getInternalNumber(): string
-    {
-        return $this->internalNumber;
-    }
-
-    public function getDisplayName(): string
-    {
-        return $this->displayName;
+        ]);
     }
 
     public function getEmail(): ?string
