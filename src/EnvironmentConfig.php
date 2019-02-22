@@ -10,10 +10,18 @@ use Horat1us\Environment;
  */
 class EnvironmentConfig extends Environment\Config implements ConfigInterface
 {
-    use EnvironmentConfigTrait;
-
     public function __construct(string $keyPrefix = 'PHONET_')
     {
         parent::__construct($keyPrefix);
+    }
+
+    public function getDomain(): string
+    {
+        return $this->getEnv('DOMAIN');
+    }
+
+    public function getApiKey(): string
+    {
+        return $this->getEnv('API_KEY');
     }
 }
