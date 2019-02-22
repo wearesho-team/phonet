@@ -16,6 +16,8 @@ class ServiceTest extends TestCase
     protected const DOMAIN = 'test.phonet.com.ua';
     protected const API_KEY = 'test-api-key';
 
+    protected const UUID = 'test-uuid';
+
     /** @var array */
     protected $container;
 
@@ -59,14 +61,13 @@ class ServiceTest extends TestCase
 
     public function testSuccessMakeCall(): void
     {
-        $uuid = 'test-uuid';
         $this->mock->append(
             new GuzzleHttp\Psr7\Response(200, [
                 'set-cookie' => [
                     'JSESSIONID' => 'test-id'
                 ]
             ]),
-            new GuzzleHttp\Psr7\Response(200, [], \json_encode(['uuid' => $uuid]))
+            new GuzzleHttp\Psr7\Response(200, [], \json_encode(['uuid' => static::UUID]))
         );
 
         $callerNumber = 'caller';
@@ -77,6 +78,7 @@ class ServiceTest extends TestCase
         /** @var GuzzleHttp\Psr7\Request $sentRequest */
         $sentRequest = $this->container[1]['request'];
 
+        $this->assertEquals('POST', $sentRequest->getMethod());
         $this->assertEquals(
             ["JSESSIONID=test-id"],
             $sentRequest->getHeader('Cookie')
@@ -99,19 +101,19 @@ class ServiceTest extends TestCase
         );
 
         $this->assertEquals(
-            $uuid,
+            static::UUID,
             $responseUuid
         );
     }
 
     public function testForceProvideForMakeCall(): void
     {
+        $cacheKey = "phonet.authorization." . sha1($this->config->getDomain() . $this->config->getApiKey());
         /** @noinspection PhpUnhandledExceptionInspection */
         $this->cache->set(
-            "phonet.authorization." . sha1($this->config->getDomain() . $this->config->getApiKey()),
+            $cacheKey,
             GuzzleHttp\Cookie\CookieJar::fromArray(['JSESSIONID' => 'test-id'], $this->config->getDomain())
         );
-        $uuid = 'test-uuid';
         $this->mock->append(
             new GuzzleHttp\Psr7\Response(403, [], 'Some error'),
             new GuzzleHttp\Psr7\Response(200, [
@@ -119,7 +121,7 @@ class ServiceTest extends TestCase
                     'JSESSIONID' => 'test-id-2'
                 ]
             ]),
-            new GuzzleHttp\Psr7\Response(200, [], \json_encode(['uuid' => $uuid]))
+            new GuzzleHttp\Psr7\Response(200, [], \json_encode(['uuid' => static::UUID]))
         );
 
         $callerNumber = 'caller';
@@ -130,6 +132,7 @@ class ServiceTest extends TestCase
         /** @var GuzzleHttp\Psr7\Request $sentRequest */
         $sentRequest = $this->container[2]['request'];
 
+        $this->assertEquals('POST', $sentRequest->getMethod());
         $this->assertEquals(
             ["JSESSIONID=test-id-2"],
             $sentRequest->getHeader('Cookie')
@@ -142,7 +145,6 @@ class ServiceTest extends TestCase
             \json_encode(['legExt' => $callerNumber, 'otherLegNum' => $callTaker]),
             (string)$sentRequest->getBody()
         );
-        $cacheKey = "phonet.authorization." . sha1($this->config->getDomain() . $this->config->getApiKey());
         /** @noinspection PhpUnhandledExceptionInspection */
         $this->assertTrue($this->cache->has($cacheKey));
         /** @noinspection PhpUnhandledExceptionInspection */
@@ -151,7 +153,7 @@ class ServiceTest extends TestCase
             $this->cache->get($cacheKey)
         );
 
-        $this->assertEquals($uuid, $responseUuid);
+        $this->assertEquals(static::UUID, $responseUuid);
     }
 
     public function testUnexpectedExceptionForMakeCall(): void
@@ -186,5 +188,69 @@ class ServiceTest extends TestCase
 
         /** @noinspection PhpUnhandledExceptionInspection */
         $this->service->makeCall('test-1', 'test-2');
+    }
+
+    public function testSuccessHangup(): void
+    {
+        $this->mock->append(
+            new GuzzleHttp\Psr7\Response(200, [
+                'set-cookie' => [
+                    'JSESSIONID' => 'test-id'
+                ]
+            ]),
+            new GuzzleHttp\Psr7\Response(200, [])
+        );
+
+        $this->service->hangup(static::UUID);
+
+        /** @var GuzzleHttp\Psr7\Request $sentRequest */
+        $sentRequest = $this->container[1]['request'];
+
+        $this->assertEmpty((string)$sentRequest->getBody());
+        $this->assertEquals('GET', $sentRequest->getMethod());
+
+        $cacheKey = "phonet.authorization." . sha1($this->config->getDomain() . $this->config->getApiKey());
+        /** @noinspection PhpUnhandledExceptionInspection */
+        $this->assertTrue($this->cache->has($cacheKey));
+        /** @noinspection PhpUnhandledExceptionInspection */
+        $this->assertEquals(
+            GuzzleHttp\Cookie\CookieJar::fromArray(['JSESSIONID' => 'test-id'], $this->config->getDomain()),
+            $this->cache->get($cacheKey)
+        );
+    }
+
+    public function testForceProvideHangup(): void
+    {
+        $cacheKey = "phonet.authorization." . sha1($this->config->getDomain() . $this->config->getApiKey());
+        /** @noinspection PhpUnhandledExceptionInspection */
+        $this->cache->set(
+            $cacheKey,
+            GuzzleHttp\Cookie\CookieJar::fromArray(['JSESSIONID' => 'test-id'], $this->config->getDomain())
+        );
+        $this->mock->append(
+            new GuzzleHttp\Psr7\Response(403, [], 'Some error'),
+            new GuzzleHttp\Psr7\Response(200, [
+                'set-cookie' => [
+                    'JSESSIONID' => 'test-id'
+                ]
+            ]),
+            new GuzzleHttp\Psr7\Response(200, [])
+        );
+
+        $this->service->hangup(static::UUID);
+
+        /** @var GuzzleHttp\Psr7\Request $sentRequest */
+        $sentRequest = $this->container[2]['request'];
+
+        $this->assertEmpty((string)$sentRequest->getBody());
+        $this->assertEquals('GET', $sentRequest->getMethod());
+
+        /** @noinspection PhpUnhandledExceptionInspection */
+        $this->assertTrue($this->cache->has($cacheKey));
+        /** @noinspection PhpUnhandledExceptionInspection */
+        $this->assertEquals(
+            GuzzleHttp\Cookie\CookieJar::fromArray(['JSESSIONID' => 'test-id'], $this->config->getDomain()),
+            $this->cache->get($cacheKey)
+        );
     }
 }

@@ -61,7 +61,7 @@ class Repository
     public function activeCalls(): Data\Collection\ActiveCall
     {
         return $this->parseActiveCalls(
-            $this->sender->send('rest/calls/active/v3', null)
+            $this->sender->get('rest/calls/active/v3', null)
         );
     }
 
@@ -166,15 +166,15 @@ class Repository
         $directions = $directions
             ?
             [
-                'directions' => $directions->map(function (Enum\Direction $direction): int {
+                'directions' => \array_map(function (Enum\Direction $direction): int {
                     return $direction->getValue();
-                })
+                }, $directions->getArrayCopy())
             ]
             :
             [];
 
         return $this->parseCompletedCalls(
-            $this->sender->send($api, \json_encode(\array_merge([
+            $this->sender->get($api, \json_encode(\array_merge([
                 static::FROM => Carbon::make($from)->timestamp,
                 static::TO => Carbon::make($to)->timestamp,
                 static::LIMIT => $limit,
@@ -197,7 +197,7 @@ class Repository
                 null,
                 $employee[static::EMAIL]
             );
-        }, $this->sender->send('rest/users', null)));
+        }, $this->sender->get('rest/users', null)));
     }
 
     protected function parseCompletedCalls(array $data): Data\Collection\CompleteCall
