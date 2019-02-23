@@ -65,7 +65,9 @@ $sender = new Phonet\Sender(
 
 ### Service
 
-Service contains only one method: `makeCall(string $callerNumber, string $callTakerNumber): string`
+#### makeCall(string $operatorNumber, string $targetNumber): string
+
+Start new call and return unique uuid of it.
 
 ```php
 <?php
@@ -76,10 +78,27 @@ use Wearesho\Phonet;
 
 $service = new Phonet\Service($sender);
 
-// Return UUID of created call
 $uuid = $service->makeCall(
-    $callerNumber = '+380000000001',
-    $callTakerNumber = '+380000000002'
+    $operatorNumber = '+380000000001',
+    $targetNumber = '+380000000002'
+);
+```
+
+#### hangupCall(string $uuid): void
+
+End a call / conversation by unique uuid
+
+```php
+<?php
+
+use Wearesho\Phonet;
+
+/** @var Phonet\Sender $sender */
+
+$service = new Phonet\Service($sender);
+
+$service->hangupCall(
+    $uuid = 'uuid'
 );
 ```
 
