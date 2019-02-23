@@ -17,6 +17,8 @@ interface ProviderInterface
      * @param ConfigInterface $config
      *
      * @return CookieJarInterface Cookie container that contain JSESSIONID that must used for other api requests
+     *
+     * @throws ProviderException
      */
     public function provide(ConfigInterface $config): CookieJarInterface;
 }

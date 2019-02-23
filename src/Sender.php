@@ -38,7 +38,7 @@ class Sender implements RestInterface
      * @param string|null $body
      *
      * @return array
-     * @throws GuzzleHttp\Exception\GuzzleException
+     * @throws Exception
      */
     public function get(string $api, string $body = null): array
     {
@@ -50,20 +50,20 @@ class Sender implements RestInterface
      * @param string|null $body
      *
      * @return array
-     * @throws GuzzleHttp\Exception\GuzzleException
+     * @throws Exception
      */
     public function post(string $api, string $body = null): array
     {
         return $this->send('POST', $api, $body);
     }
-    
+
     /**
      * @param string $method
      * @param string $api
-     * @param string $body
+     * @param string|null $body
      *
-     * @return array Json
-     * @throws GuzzleHttp\Exception\GuzzleException
+     * @return array
+     * @throws Exception
      */
     public function send(string $method, string $api, ?string $body): array
     {
@@ -76,39 +76,48 @@ class Sender implements RestInterface
         $uri = "https://{$this->config->getDomain()}/{$api}";
 
         try {
-            return $this->parseResponse(
-                $this->client->request($method, $uri, \array_merge([
-                    GuzzleHttp\RequestOptions::COOKIES => $this->provider->provide($this->config)
-                ], $options)),
-                $api
-            );
-        } catch (GuzzleHttp\Exception\ClientException $exception) {
-            if ($exception->hasResponse()
+            // Provider can throw ProviderException or CacheException (if it instance of it) so no reasons to catch them
+            $cookies = $this->provider->provide($this->config);
+            $response = $this->client->request($method, $uri, \array_merge([
+                GuzzleHttp\RequestOptions::COOKIES => $cookies
+            ], $options));
+        } catch (GuzzleHttp\Exception\GuzzleException $exception) {
+            // Checking exception with hasResponse() is optional, but for better logic execution it must be here
+            // If service return status code 403 and provider can cache response, sender will try auth with force option
+            if ($exception instanceof GuzzleHttp\Exception\ClientException
+                && $exception->hasResponse()
                 && $exception->getResponse()->getStatusCode() === static::STATUS_FORBIDDEN
                 && $this->provider instanceof Authorization\CacheProviderInterface
             ) {
-                return $this->parseResponse(
-                    $this->client->request($method, $uri, \array_merge([
-                        GuzzleHttp\RequestOptions::COOKIES => $this->provider->forceProvide($this->config)
-                    ], $options)),
-                    $api
-                );
+                try {
+                    // CacheProvider can throw ProviderException or CacheException so no reasons to catch them
+                    $cookies = $this->provider->forceProvide($this->config);
+                    $response = $this->client->request($method, $uri, \array_merge([
+                        GuzzleHttp\RequestOptions::COOKIES => $cookies
+                    ], $options));
+                } catch (GuzzleHttp\Exception\GuzzleException $exception) {
+                    throw new Exception("Api [$api] with force auth failed", $exception->getCode(), $exception);
+                }
+            } else {
+                throw new Exception("Api [{$api}] failed", $exception->getCode(), $exception);
             }
-
-            throw $exception;
         }
+
+        return $this->parseResponse($response, $api);
     }
 
     private function parseResponse(ResponseInterface $response, string $rest): array
     {
+        // In Phonet documentation only `hangup` api (get-method) contain empty body in response
+        // So no reason to parse it
         if (\preg_match('/\/' . RestInterface::HANGUP_CALL . '/', $rest)) {
             return [];
         }
-        
+
         $json = \json_decode((string)$response->getBody(), true);
 
         if (\json_last_error() !== JSON_ERROR_NONE) {
-            throw new \RuntimeException('Response body content not json');
+            throw new Exception("[$rest] return response with body that have content not json");
         }
 
         return $json;

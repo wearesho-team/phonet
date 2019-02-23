@@ -17,6 +17,8 @@ interface CacheProviderInterface extends ProviderInterface
      * @param ConfigInterface $config
      *
      * @return GuzzleHttp\Cookie\CookieJarInterface
+     * @throws ProviderException
+     * @throws CacheException
      */
     public function forceProvide(ConfigInterface $config): GuzzleHttp\Cookie\CookieJarInterface;
 }

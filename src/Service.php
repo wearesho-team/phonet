@@ -2,8 +2,6 @@
 
 namespace Wearesho\Phonet;
 
-use GuzzleHttp;
-
 /**
  * Class Service
  * @package Wearesho\Phonet
@@ -21,17 +19,17 @@ class Service
     /**
      * Start new call
      *
-     * @param string $callerNumber
-     * @param string $callTakerNumber
+     * @param string $operatorNumber
+     * @param string $clientNumber
      *
      * @return string Uuid of made call
-     * @throws GuzzleHttp\Exception\GuzzleException
+     * @throws Exception
      */
-    public function makeCall(string $callerNumber, string $callTakerNumber): string
+    public function makeCall(string $operatorNumber, string $clientNumber): string
     {
         return $this->sender->post('rest/user/makeCall', \json_encode([
-            'legExt'=> $callerNumber,
-            'otherLegNum' => $callTakerNumber,
+            'legExt'=> $operatorNumber,
+            'otherLegNum' => $clientNumber,
         ]))['uuid'];
     }
 
@@ -40,9 +38,9 @@ class Service
      *
      * @param string $uuid
      *
-     * @throws GuzzleHttp\Exception\GuzzleException
+     * @throws Exception
      */
-    public function hangup(string $uuid): void
+    public function hangupCall(string $uuid): void
     {
         $this->sender->get("rest/calls/active/{$uuid}/" . RestInterface::HANGUP_CALL);
     }
