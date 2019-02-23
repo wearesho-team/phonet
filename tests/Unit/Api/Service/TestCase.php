@@ -80,7 +80,7 @@ abstract class TestCase extends Phonet\Tests\Unit\Api\TestCase
         );
 
         $this->expectException(Phonet\Exception::class);
-        $this->expectExceptionMessage("Force auth provide for api [{$this->api()}] failed");
+        $this->expectExceptionMessage("Api [{$this->api()}] with force auth failed");
 
         $this->invokeMethod();
     }

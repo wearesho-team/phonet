@@ -96,7 +96,7 @@ class Sender implements RestInterface
                         GuzzleHttp\RequestOptions::COOKIES => $cookies
                     ], $options));
                 } catch (GuzzleHttp\Exception\GuzzleException $exception) {
-                    throw new Exception("Force auth provide for api [$api] failed", $exception->getCode(), $exception);
+                    throw new Exception("Api [$api] with force auth failed", $exception->getCode(), $exception);
                 }
             } else {
                 throw new Exception("Api [{$api}] failed", $exception->getCode(), $exception);

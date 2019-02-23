@@ -195,7 +195,7 @@ class CompleteCallsTest extends TestCase
 
         $this->expectException(Phonet\Exception::class);
         $this->expectExceptionCode($badStatusCode);
-        $this->expectExceptionMessage("Force auth provide for api [$api] failed");
+        $this->expectExceptionMessage("Api [$api] with force auth failed");
 
         $this->getCompleteCalls($method, $this->createDateFrom(), $this->createDateTo());
     }

@@ -200,7 +200,7 @@ class ActiveCallsTest extends TestCase
         );
 
         $this->expectException(Phonet\Exception::class);
-        $this->expectExceptionMessage('Force auth provide for api [rest/calls/active/v3] failed');
+        $this->expectExceptionMessage('Api [rest/calls/active/v3] with force auth failed');
         $this->expectExceptionCode($badStatusCode);
 
         /** @noinspection PhpUnhandledExceptionInspection */

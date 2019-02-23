@@ -96,7 +96,7 @@ class UsersTest extends TestCase
         );
 
         $this->expectException(Phonet\Exception::class);
-        $this->expectExceptionMessage('Force auth provide for api [rest/users] failed');
+        $this->expectExceptionMessage('Api [rest/users] with force auth failed');
         $this->expectExceptionCode($badStatusCode);
 
         /** @noinspection PhpUnhandledExceptionInspection */
