@@ -3,7 +3,7 @@
 namespace Wearesho\Phonet\Data;
 
 use Carbon\Carbon;
-use Wearesho\Phonet\Enum\Direction;
+use Wearesho\Phonet\Enum;
 
 /**
  * Class CompleteCall
@@ -20,8 +20,8 @@ class CompleteCall extends BaseCall
     /** @var string|null */
     protected $subjectName;
 
-    /** @var int */
-    protected $disposition;
+    /** @var Enum\CompleteCallStatus */
+    protected $status;
 
     /** @var string|null */
     protected $trunk;
@@ -40,10 +40,10 @@ class CompleteCall extends BaseCall
 
     public function __construct(
         string $uuid,
-        Direction $direction,
+        Enum\Direction $direction,
         Employee $employeeCaller,
         Carbon $endAt,
-        int $disposition,
+        Enum\CompleteCallStatus $status,
         int $billSecs,
         int $duration,
         string $parentUuid = null,
@@ -57,7 +57,7 @@ class CompleteCall extends BaseCall
         $this->endAt = $endAt;
         $this->subjectNumber = $subjectNumber;
         $this->subjectName = $subjectName;
-        $this->disposition = $disposition;
+        $this->status = $status;
         $this->trunk = $trunk;
         $this->billSecs = $billSecs;
         $this->duration = $duration;
@@ -78,7 +78,7 @@ class CompleteCall extends BaseCall
             'endAt' => $this->endAt,
             'subjectNumber' => $this->subjectNumber,
             'subjectName' => $this->subjectName,
-            'disposition' => $this->disposition,
+            'disposition' => $this->status,
             'trunk' => $this->trunk,
             'billSecs' => $this->billSecs,
             'duration' => $this->duration,
@@ -102,9 +102,9 @@ class CompleteCall extends BaseCall
         return $this->subjectName;
     }
 
-    public function getDisposition(): int
+    public function getStatus(): Enum\CompleteCallStatus
     {
-        return $this->disposition;
+        return $this->status;
     }
 
     public function getTrunk(): ?string

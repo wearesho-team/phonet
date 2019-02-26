@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use PHPUnit\Framework\TestCase;
 use Wearesho\Phonet\Data\CompleteCall;
 use Wearesho\Phonet\Data\Employee;
+use Wearesho\Phonet\Enum\CompleteCallStatus;
 use Wearesho\Phonet\Enum\Direction;
 
 /**
@@ -42,7 +43,7 @@ class CompleteCallTest extends TestCase
             Direction::INTERNAL(),
             new Employee(static::ID, static::INTERNAL_NUMBER, static::DISPLAY_NAME, static::TYPE, static::EMAIL),
             Carbon::getTestNow(),
-            static::DISPOSITION,
+            CompleteCallStatus::TARGET_RESPONDED(),
             static::BILL_SECS,
             static::DURATION,
             static::PARENT_UUID,
@@ -89,7 +90,7 @@ class CompleteCallTest extends TestCase
                 'endAt' => Carbon::getTestNow(),
                 'subjectNumber' => static::SUBJECT_NUMBER,
                 'subjectName' => static::SUBJECT_NAME,
-                'disposition' => static::DISPOSITION,
+                'disposition' => CompleteCallStatus::TARGET_RESPONDED(),
                 'trunk' => static::TRUNK,
                 'billSecs' => static::BILL_SECS,
                 'duration' => static::DURATION,
