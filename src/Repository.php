@@ -4,7 +4,7 @@ namespace Wearesho\Phonet;
 
 use Carbon\Carbon;
 use GuzzleHttp;
-use Wearesho\Phonet\Enum\CompleteCallStatus;
+use Wearesho\Phonet\Enum\Status;
 
 /**
  * Class Repository
@@ -222,7 +222,7 @@ class Repository
                     $caller[static::TYPE]
                 ),
                 Carbon::createFromTimestamp($call[static::END_AT]),
-                new CompleteCallStatus((int)$call[static::DISPOSITION]),
+                new Status((int)$call[static::DISPOSITION]),
                 $call[static::BILL_SECS],
                 $call[static::DURATION],
                 \array_key_exists(static::PARENT_UUID, $call) ? $call[static::PARENT_UUID] : null,

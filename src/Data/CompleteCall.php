@@ -20,7 +20,7 @@ class CompleteCall extends BaseCall
     /** @var string|null */
     protected $subjectName;
 
-    /** @var Enum\CompleteCallStatus */
+    /** @var Enum\Status */
     protected $status;
 
     /** @var string|null */
@@ -43,7 +43,7 @@ class CompleteCall extends BaseCall
         Enum\Direction $direction,
         Employee $employeeCaller,
         Carbon $endAt,
-        Enum\CompleteCallStatus $status,
+        Enum\Status $status,
         int $billSecs,
         int $duration,
         string $parentUuid = null,
@@ -102,7 +102,7 @@ class CompleteCall extends BaseCall
         return $this->subjectName;
     }
 
-    public function getStatus(): Enum\CompleteCallStatus
+    public function getStatus(): Enum\Status
     {
         return $this->status;
     }
