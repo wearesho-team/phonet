@@ -58,7 +58,7 @@ class Service
      */
     protected function validatePhoneNumber(string $number): void
     {
-        if (!preg_match('/^(\+|)380[0-9]{9}$/', $number)) {
+        if (!preg_match('/^\+{0,1}380[0-9]{9}$/', $number)) {
             throw new Exception("Invalid target number format: {$number}");
         }
     }
