@@ -78,8 +78,8 @@ $service = new Phonet\Service($sender);
 
 // Return UUID of created call
 $uuid = $service->makeCall(
-    $callerNumber = '+380000000001',
-    $callTakerNumber = '+380000000002'
+    $operatorInternalNumber = '001', // Internal number of operator
+    $callTakerNumber = '380000000002' // Phone number of target
 );
 ```
 

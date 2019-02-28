@@ -85,9 +85,9 @@ abstract class TestCase extends Phonet\Tests\Unit\Api\TestCase
         $this->invokeMethod();
     }
 
-    protected function invokeMethod()
+    protected function invokeMethod(array $arguments = null)
     {
-        return $this->service->{$this->method()}(...$this->arguments());
+        return $this->service->{$this->method()}(...($arguments ?? $this->arguments()));
     }
 
     abstract protected function api(): string;
