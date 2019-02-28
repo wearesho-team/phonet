@@ -220,7 +220,7 @@ class Repository
                     $caller[static::TYPE]
                 ),
                 Carbon::createFromTimestamp($call[static::END_AT]),
-                $call[static::DISPOSITION],
+                new Call\Complete\Status((int)$call[static::DISPOSITION]),
                 $call[static::BILL_SECS],
                 $call[static::DURATION],
                 \array_key_exists(static::PARENT_UUID, $call) ? $call[static::PARENT_UUID] : null,

@@ -85,7 +85,7 @@ class TestCase extends Phonet\Tests\Unit\Api\TestCase
         $this->assertEquals("004", $employeeCallTaker->getInternalNumber());
         $this->assertEquals(3, $missedCall->getBillSecs());
         $this->assertEquals(4, $missedCall->getDuration());
-        $this->assertEquals(0, $missedCall->getDisposition());
+        $this->assertEquals(0, $missedCall->getStatus()->getValue());
         $this->assertEquals(null, $missedCall->getTransferHistory());
         $this->assertEquals(
             "https://podium.betell.com.ua/rest/public/calls/f457486f-a539-45dd-c5f5-e735a5870b92/audio ",

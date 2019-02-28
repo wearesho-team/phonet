@@ -20,8 +20,8 @@ class Complete extends Phonet\Call
     /** @var string|null */
     protected $subjectName;
 
-    /** @var int */
-    protected $disposition;
+    /** @var Complete\Status */
+    protected $status;
 
     /** @var string|null */
     protected $trunk;
@@ -43,7 +43,7 @@ class Complete extends Phonet\Call
         Direction $direction,
         Phonet\Employee $employeeCaller,
         Carbon $endAt,
-        int $disposition,
+        Complete\Status $status,
         int $billSecs,
         int $duration,
         string $parentUuid = null,
@@ -57,7 +57,7 @@ class Complete extends Phonet\Call
         $this->endAt = $endAt;
         $this->subjectNumber = $subjectNumber;
         $this->subjectName = $subjectName;
-        $this->disposition = $disposition;
+        $this->status = $status;
         $this->trunk = $trunk;
         $this->billSecs = $billSecs;
         $this->duration = $duration;
@@ -78,7 +78,7 @@ class Complete extends Phonet\Call
             'endAt' => $this->endAt,
             'subjectNumber' => $this->subjectNumber,
             'subjectName' => $this->subjectName,
-            'disposition' => $this->disposition,
+            'disposition' => $this->status,
             'trunk' => $this->trunk,
             'billSecs' => $this->billSecs,
             'duration' => $this->duration,
@@ -102,9 +102,9 @@ class Complete extends Phonet\Call
         return $this->subjectName;
     }
 
-    public function getDisposition(): int
+    public function getStatus(): Complete\Status
     {
-        return $this->disposition;
+        return $this->status;
     }
 
     public function getTrunk(): ?string
