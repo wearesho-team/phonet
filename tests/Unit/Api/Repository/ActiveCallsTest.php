@@ -12,7 +12,7 @@ class ActiveCallsTest extends TestCase
 {
     protected const REST = '/rest/calls/active/v3';
 
-    public function testSuccessProvidedRequest(): Phonet\Data\Collection\ActiveCall
+    public function testSuccessProvidedRequest(): Phonet\Call\Active\Collection
     {
         $this->mock->append(
             $this->getSuccessAuthResponse(static::SESSION_ID),
@@ -35,7 +35,7 @@ class ActiveCallsTest extends TestCase
         return $activeCalls;
     }
 
-    public function testForceProvideWithExpiredCache(): Phonet\Data\Collection\ActiveCall
+    public function testForceProvideWithExpiredCache(): Phonet\Call\Active\Collection
     {
         $key = $this->getCacheKey();
         $this->presetCache($key, $this->createCookie(static::EXPIRED_SESSION_ID));
@@ -62,7 +62,7 @@ class ActiveCallsTest extends TestCase
         return $activeCalls;
     }
 
-    public function testSuccessForceProvideWithCache(): Phonet\Data\Collection\ActiveCall
+    public function testSuccessForceProvideWithCache(): Phonet\Call\Active\Collection
     {
         $key = $this->getCacheKey();
         $this->presetCache($key, $this->createCookie(static::SESSION_ID));
@@ -92,27 +92,27 @@ class ActiveCallsTest extends TestCase
      * @depends testForceProvideWithExpiredCache
      * @depends testSuccessForceProvideWithCache
      *
-     * @param Phonet\Data\Collection\ActiveCall $activeCalls
+     * @param Phonet\Call\Active\Collection $activeCalls
      */
-    public function testParseActiveCallsResponse(Phonet\Data\Collection\ActiveCall $activeCalls): void
+    public function testParseActiveCallsResponse(Phonet\Call\Active\Collection $activeCalls): void
     {
-        $this->assertInstanceOf(Phonet\Data\Collection\ActiveCall::class, $activeCalls);
+        $this->assertInstanceOf(Phonet\Call\Active\Collection::class, $activeCalls);
         $this->assertCount(3, $activeCalls);
 
-        /** @var Phonet\Data\ActiveCall $call */
+        /** @var Phonet\Call\Active $call */
         $call = $activeCalls[0];
 
         $this->assertEquals('47a968893984475b8c20e29dec144ce3', $call->getUuid());
         $this->assertNull($call->getParentUuid());
-        $this->assertEquals(Phonet\Enum\Direction::OUT(), $call->getDirection());
-        $this->assertEquals(Phonet\Enum\Event::DIAL(), $call->getLastEvent());
+        $this->assertEquals(Phonet\Call\Direction::OUT(), $call->getDirection());
+        $this->assertEquals(Phonet\Call\Event::DIAL(), $call->getLastEvent());
         $this->assertEquals(1431686100, $call->getDialAt()->timestamp);
         $this->assertNull($call->getBridgeAt());
         $this->assertEquals(36, $call->getEmployeeCaller()->getId());
         $this->assertEquals("001", $call->getEmployeeCaller()->getInternalNumber());
         $this->assertEquals("Иван Иванов", $call->getEmployeeCaller()->getDisplayName());
         $this->assertNull($call->getEmployeeCallTaker());
-        /** @var Phonet\Data\Subject $subject */
+        /** @var Phonet\Subject $subject */
         $subject = $call->getSubjects()[0];
         $this->assertEquals("6137", $subject->getId());
         $this->assertEquals("Telecom company", $subject->getName());
@@ -126,20 +126,20 @@ class ActiveCallsTest extends TestCase
         $this->assertEquals('+380442246595', $call->getTrunkNumber());
         $this->assertEquals('+380442246595', $call->getTrunkName());
 
-        /** @var Phonet\Data\ActiveCall $call */
+        /** @var Phonet\Call\Active $call */
         $call = $activeCalls[1];
 
         $this->assertEquals('562aa0bd8d9842cd95e4a581443f2e86', $call->getUuid());
         $this->assertNull($call->getParentUuid());
-        $this->assertEquals(Phonet\Enum\Direction::IN(), $call->getDirection());
-        $this->assertEquals(Phonet\Enum\Event::BRIDGE(), $call->getLastEvent());
+        $this->assertEquals(Phonet\Call\Direction::IN(), $call->getDirection());
+        $this->assertEquals(Phonet\Call\Event::BRIDGE(), $call->getLastEvent());
         $this->assertEquals(1431686088, $call->getDialAt()->timestamp);
         $this->assertEquals(1431686100, $call->getBridgeAt()->timestamp);
         $this->assertEquals(36, $call->getEmployeeCaller()->getId());
         $this->assertEquals("001", $call->getEmployeeCaller()->getInternalNumber());
         $this->assertEquals("Иван Иванов", $call->getEmployeeCaller()->getDisplayName());
         $this->assertNull($call->getEmployeeCallTaker());
-        /** @var Phonet\Data\Subject $subject */
+        /** @var Phonet\Subject $subject */
         $subject = $call->getSubjects()[0];
         $expectSubjectId = "6137";
         $expectSubjectName = "Telecom company";
@@ -165,12 +165,12 @@ class ActiveCallsTest extends TestCase
         $this->assertEquals('+380442246595', $call->getTrunkNumber());
         $this->assertEquals('+380442246595', $call->getTrunkName());
 
-        /** @var Phonet\Data\ActiveCall $call */
+        /** @var Phonet\Call\Active $call */
         $call = $activeCalls[2];
         $this->assertEquals('68333cd7aa94421e89dbc8acfe5027bb', $call->getUuid());
         $this->assertNull($call->getParentUuid());
-        $this->assertEquals(Phonet\Enum\Direction::INTERNAL(), $call->getDirection());
-        $this->assertEquals(Phonet\Enum\Event::BRIDGE(), $call->getLastEvent());
+        $this->assertEquals(Phonet\Call\Direction::INTERNAL(), $call->getDirection());
+        $this->assertEquals(Phonet\Call\Event::BRIDGE(), $call->getLastEvent());
         $this->assertEquals(1431686001, $call->getDialAt()->timestamp);
         $this->assertEquals(1431686019, $call->getBridgeAt()->timestamp);
         $this->assertEquals(36, $call->getEmployeeCaller()->getId());

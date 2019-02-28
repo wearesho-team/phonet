@@ -1,15 +1,15 @@
 <?php
 
-namespace Wearesho\Phonet\Data;
+namespace Wearesho\Phonet\Call;
 
 use Carbon\Carbon;
-use Wearesho\Phonet\Enum\Direction;
+use Wearesho\Phonet;
 
 /**
- * Class CompleteCall
- * @package Wearesho\Phonet\Data
+ * Class Complete
+ * @package Wearesho\Phonet\Call
  */
-class CompleteCall extends BaseCall
+class Complete extends Phonet\Call
 {
     /** @var Carbon */
     protected $endAt;
@@ -20,8 +20,8 @@ class CompleteCall extends BaseCall
     /** @var string|null */
     protected $subjectName;
 
-    /** @var int */
-    protected $disposition;
+    /** @var Complete\Status */
+    protected $status;
 
     /** @var string|null */
     protected $trunk;
@@ -41,13 +41,13 @@ class CompleteCall extends BaseCall
     public function __construct(
         string $uuid,
         Direction $direction,
-        Employee $employeeCaller,
+        Phonet\Employee $employeeCaller,
         Carbon $endAt,
-        int $disposition,
+        Complete\Status $status,
         int $billSecs,
         int $duration,
         string $parentUuid = null,
-        Employee $employeeCallTaker = null,
+        Phonet\Employee $employeeCallTaker = null,
         string $subjectNumber = null,
         string $subjectName = null,
         string $trunk = null,
@@ -57,7 +57,7 @@ class CompleteCall extends BaseCall
         $this->endAt = $endAt;
         $this->subjectNumber = $subjectNumber;
         $this->subjectName = $subjectName;
-        $this->disposition = $disposition;
+        $this->status = $status;
         $this->trunk = $trunk;
         $this->billSecs = $billSecs;
         $this->duration = $duration;
@@ -78,7 +78,7 @@ class CompleteCall extends BaseCall
             'endAt' => $this->endAt,
             'subjectNumber' => $this->subjectNumber,
             'subjectName' => $this->subjectName,
-            'disposition' => $this->disposition,
+            'disposition' => $this->status,
             'trunk' => $this->trunk,
             'billSecs' => $this->billSecs,
             'duration' => $this->duration,
@@ -102,9 +102,9 @@ class CompleteCall extends BaseCall
         return $this->subjectName;
     }
 
-    public function getDisposition(): int
+    public function getStatus(): Complete\Status
     {
-        return $this->disposition;
+        return $this->status;
     }
 
     public function getTrunk(): ?string

@@ -40,7 +40,7 @@ class CompleteCallsTest extends TestCase
                 'limit' => 50,
                 'offset' => 0,
                 'directions' => [
-                    Phonet\Enum\Direction::OUT,
+                    Phonet\Call\Direction::OUT,
                 ]
             ],
             \json_decode($sentRequest->getBody()->getContents(), true)
@@ -87,7 +87,7 @@ class CompleteCallsTest extends TestCase
                 'limit' => 50,
                 'offset' => 0,
                 'directions' => [
-                    Phonet\Enum\Direction::OUT,
+                    Phonet\Call\Direction::OUT,
                 ]
             ],
             \json_decode($sentRequest->getBody()->getContents(), true)
@@ -130,7 +130,7 @@ class CompleteCallsTest extends TestCase
                 'limit' => 50,
                 'offset' => 0,
                 'directions' => [
-                    Phonet\Enum\Direction::OUT,
+                    Phonet\Call\Direction::OUT,
                 ]
             ],
             \json_decode($sentRequest->getBody()->getContents(), true)
@@ -299,7 +299,7 @@ class CompleteCallsTest extends TestCase
      * @param int $limit
      * @param int $offset
      *
-     * @return Phonet\Data\Collection\CompleteCall
+     * @return Phonet\Call\Complete\Collection
      */
     protected function getCompleteCalls(
         string $method,
@@ -307,13 +307,13 @@ class CompleteCallsTest extends TestCase
         Carbon $to,
         int $limit = 50,
         int $offset = 0
-    ): Phonet\Data\Collection\CompleteCall {
+    ): Phonet\Call\Complete\Collection {
         /** @noinspection PhpUnhandledExceptionInspection */
         return $this->repository->{$method}(
             $from,
             $to,
-            new Phonet\Data\Collection\Direction([
-                Phonet\Enum\Direction::OUT(),
+            new Phonet\Call\Direction\Collection([
+                Phonet\Call\Direction::OUT(),
             ]),
             $limit,
             $offset

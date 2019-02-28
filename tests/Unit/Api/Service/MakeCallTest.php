@@ -3,6 +3,7 @@
 namespace Wearesho\Phonet\Tests\Unit\Api\Service;
 
 use GuzzleHttp;
+use Wearesho\Phonet\Exception;
 
 /**
  * Class MakeCallTest
@@ -11,7 +12,7 @@ use GuzzleHttp;
 class MakeCallTest extends TestCase
 {
     protected const OPERATOR = 'test-operator-number';
-    protected const TARGET = 'test-target-number';
+    protected const TARGET = '380930439475';
     protected const UUID = 'test-uuid';
 
     protected function method(): string
@@ -84,6 +85,17 @@ class MakeCallTest extends TestCase
         );
     }
 
+    public function testInvalidTargetNumber(): void
+    {
+        $this->presetCache($this->getCacheKey(), $this->createCookie(static::SESSION_ID));
+
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage('Invalid target number format: invalid-target-number');
+
+        $this->invokeMethod([static::OPERATOR, 'invalid-target-number']);
+    }
+
+
     protected function getSuccessRestResponse(?string $body): GuzzleHttp\Psr7\Response
     {
         return parent::getSuccessRestResponse(\json_encode(['uuid' => $body]));
@@ -99,7 +111,7 @@ class MakeCallTest extends TestCase
         $this->assertEquals(
             [
                 'legExt' => static::OPERATOR,
-                'otherLegNum' => static::TARGET,
+                'otherLegNum' => "+" . static::TARGET,
             ],
             \json_decode((string)$request->getBody(), true)
         );

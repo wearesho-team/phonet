@@ -47,8 +47,8 @@ class TestCase extends Phonet\Tests\Unit\Api\TestCase
 
     public function repositoryMethodsProvider(): array
     {
-        $directions = new Phonet\Data\Collection\Direction([
-            Phonet\Enum\Direction::OUT()
+        $directions = new Phonet\Call\Direction\Collection([
+            Phonet\Call\Direction::OUT()
         ]);
 
         return [
@@ -60,17 +60,17 @@ class TestCase extends Phonet\Tests\Unit\Api\TestCase
         ];
     }
 
-    protected function parseCompleteCalls(Phonet\Data\Collection\CompleteCall $completeCalls): void
+    protected function parseCompleteCalls(Phonet\Call\Complete\Collection $completeCalls): void
     {
         $this->assertCount(2, $completeCalls);
 
-        /** @var Phonet\Data\CompleteCall $missedCall */
+        /** @var Phonet\Call\Complete $missedCall */
         $missedCall = $completeCalls[0];
 
         $this->assertEquals("d267486f-a539-45dd-c5f5-e735a5870b80", $missedCall->getParentUuid());
         $this->assertEquals("f457486f-a539-45dd-c5f5-e735a5870b92", $missedCall->getUuid());
         $this->assertEquals(1435319298470, $missedCall->getEndAt()->timestamp);
-        $this->assertEquals(Phonet\Enum\Direction::INTERNAL(), $missedCall->getDirection());
+        $this->assertEquals(Phonet\Call\Direction::INTERNAL(), $missedCall->getDirection());
         $this->assertNull($missedCall->getSubjectName());
         $this->assertNull($missedCall->getSubjectNumber());
         $employeeCaller = $missedCall->getEmployeeCaller();
@@ -85,7 +85,7 @@ class TestCase extends Phonet\Tests\Unit\Api\TestCase
         $this->assertEquals("004", $employeeCallTaker->getInternalNumber());
         $this->assertEquals(3, $missedCall->getBillSecs());
         $this->assertEquals(4, $missedCall->getDuration());
-        $this->assertEquals(0, $missedCall->getDisposition());
+        $this->assertEquals(0, $missedCall->getStatus()->getValue());
         $this->assertEquals(null, $missedCall->getTransferHistory());
         $this->assertEquals(
             "https://podium.betell.com.ua/rest/public/calls/f457486f-a539-45dd-c5f5-e735a5870b92/audio ",

@@ -65,7 +65,7 @@ $sender = new Phonet\Sender(
 
 ### Service
 
-#### makeCall(string $operatorNumber, string $targetNumber): string
+#### makeCall(string $operatorInternalNumber, string $targetNumber): string
 
 Start new call and return unique uuid of it.
 
@@ -79,8 +79,8 @@ use Wearesho\Phonet;
 $service = new Phonet\Service($sender);
 
 $uuid = $service->makeCall(
-    $operatorNumber = '+380000000001',
-    $targetNumber = '+380000000002'
+    $operatorInternalNumber = '001', // Internal number of operator
+    $callTakerNumber = '380000000002' // Phone number of target
 );
 ```
 
@@ -110,7 +110,7 @@ Repository contains methods for searching data in Phonet Service.
 
 |param      |value            |
 |-----------|-----------------|
-|Return type| [Data\Collection\ActiveCall](./src/Data/Collection/ActiveCall.php)|
+|Return type| [Call\Active\Collection](src/Call/Active/Collection.php)|
 |Arguments| - |
 
 Returns collection of calls that currently taking place.
@@ -131,7 +131,7 @@ $activeCalls = $repository->activeCalls();
 
 |param      |value            |
 |-----------|-----------------|
-|Return type| [Data\Collection\CompleteCall](./src/Data/Collection/CompleteCall.php)|
+|Return type| [Call\Complete\Collection](src/Call/Complete/Collection.php)|
 |Arguments|$from, $to, $directions, $limit, $offset|
 
 Returns a collection of calls to call back.
@@ -148,7 +148,7 @@ $repository = new Phonet\Repository($sender);
 $missedCalls = $repository->missedCalls(
     $from = new DateTime(),
     $to = new DateTime(),
-    $directions = new Phonet\Data\Collection\Direction([/** @see Phonet\Enum\Direction */]),
+    $directions = new Phonet\Call\Direction\Collection([/** @see Phonet\Call\Direction */]),
     $limit = 10, // count of needs calls
     $offset = 5 // shift in sample
 );
@@ -158,7 +158,7 @@ $missedCalls = $repository->missedCalls(
 
 |param      |value            |
 |-----------|-----------------|
-|Return type| [Data\Collection\CompleteCall](./src/Data/Collection/CompleteCall.php)|
+|Return type| [Call\Complete\Collection](src/Call/Complete/Collection.php)|
 |Arguments|$from, $to, $directions, $limit, $offset|
 
 Returns a collection of calls made by the company.
@@ -175,7 +175,7 @@ $repository = new Phonet\Repository($sender);
 $companyCalls = $repository->companyCalls(
     $from = new DateTime(),
     $to = new DateTime(),
-    $directions = new Phonet\Data\Collection\Direction([/** @see Phonet\Enum\Direction */]),
+    $directions = new Phonet\Call\Direction\Collection([/** @see Phonet\Call\Direction */]),
     $limit = 10, // count of needs calls
     $offset = 5 // shift in sample
 );
@@ -185,7 +185,7 @@ $companyCalls = $repository->companyCalls(
 
 |param      |value            |
 |-----------|-----------------|
-|Return type| [Data\Collection\CompleteCall](./src/Data/Collection/CompleteCall.php)|
+|Return type| [Call\Complete\Collection](src/Call/Complete/Collection.php)|
 |Arguments|$from, $to, $directions, $limit, $offset|
 
 Returns a collection of calls made by employees.
@@ -202,7 +202,7 @@ $repository = new Phonet\Repository($sender);
 $usersCalls = $repository->usersCalls(
     $from = new DateTime(),
     $to = new DateTime(),
-    $directions = new Phonet\Data\Collection\Direction([/** @see Phonet\Enum\Direction */]),
+    $directions = new Phonet\Call\Direction\Collection([/** @see Phonet\Call\Direction */]),
     $limit = 10, // count of needs calls
     $offset = 5 // shift in sample
 );
@@ -212,7 +212,7 @@ $usersCalls = $repository->usersCalls(
 
 |param      |value            |
 |-----------|-----------------|
-|Return type| [Data\Collection\Employee](./src/Data/Collection/Employee.php)|
+|Return type| [Employee\Collection](src/Employee/Collection.php)|
 |Arguments| - |
 
 Returns a collection of employees of company.

@@ -1,12 +1,12 @@
 <?php
 
-namespace Wearesho\Phonet\Enum;
+namespace Wearesho\Phonet\Call;
 
 use MyCLabs\Enum\Enum;
 
 /**
  * Class Direction
- * @package Wearesho\Phonet\Enum
+ * @package Wearesho\Phonet\Call
  *
  * @method static Direction INTERNAL()
  * @method static Direction OUT()

@@ -1,12 +1,12 @@
 <?php
 
-namespace Wearesho\Phonet\Enum;
+namespace Wearesho\Phonet\Call;
 
 use MyCLabs\Enum\Enum;
 
 /**
  * Class Event
- * @package Wearesho\Phonet\Enum
+ * @package Wearesho\Phonet\Call
  *
  * @method static Event DIAL()
  * @method static Event BRIDGE()
