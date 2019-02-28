@@ -3,7 +3,7 @@
 namespace Wearesho\Phonet\Tests\Unit\Data;
 
 use PHPUnit\Framework\TestCase;
-use Wearesho\Phonet\Data\Employee;
+use Wearesho\Phonet\Employee;
 
 /**
  * Class EmployeeTest

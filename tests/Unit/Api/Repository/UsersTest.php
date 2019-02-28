@@ -123,7 +123,7 @@ class UsersTest extends TestCase
         $this->repository->users();
     }
 
-    protected function parseUsers(Phonet\Data\Collection\Employee $users): void
+    protected function parseUsers(Phonet\Employee\Collection $users): void
     {
         $this->assertCount(2, $users);
 
@@ -144,7 +144,7 @@ class UsersTest extends TestCase
 
         /**
          * @var int $key
-         * @var Phonet\Data\Employee $user
+         * @var Phonet\Employee $user
          */
         foreach ($users as $key => $user) {
             $data = $expectData[$key];
