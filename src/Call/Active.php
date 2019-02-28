@@ -1,15 +1,15 @@
 <?php
 
-namespace Wearesho\Phonet\Data;
+namespace Wearesho\Phonet\Call;
 
 use Carbon\Carbon;
-use Wearesho\Phonet\Enum;
+use Wearesho\Phonet;
 
 /**
- * Class ActiveCall
- * @package Wearesho\Phonet\Data
+ * Class Active
+ * @package Wearesho\Phonet\Call
  */
-class ActiveCall extends BaseCall
+class Active extends Phonet\Call
 {
     /** @var Carbon */
     protected $dialAt;
@@ -17,10 +17,10 @@ class ActiveCall extends BaseCall
     /** @var Carbon|null */
     protected $bridgeAt;
 
-    /** @var Enum\Event */
+    /** @var Phonet\Call\Event */
     protected $lastEvent;
 
-    /** @var Collection\Subject|null */
+    /** @var Phonet\Subject\Collection|null */
     protected $subjects;
 
     /** @var string */
@@ -32,15 +32,15 @@ class ActiveCall extends BaseCall
     public function __construct(
         string $uuid,
         Carbon $dialAt,
-        Enum\Direction $direction,
-        Enum\Event $lastEvent,
-        Employee $employeeCaller,
+        Phonet\Call\Direction $direction,
+        Phonet\Call\Event $lastEvent,
+        Phonet\Employee $employeeCaller,
         string $trunkNumber,
         string $trunkName,
         string $parentUuid = null,
         Carbon $bridgeAt = null,
-        Employee $employeeCallTaker = null,
-        Collection\Subject $subjects = null
+        Phonet\Employee $employeeCallTaker = null,
+        Phonet\Subject\Collection $subjects = null
     ) {
         $this->dialAt = $dialAt;
         $this->bridgeAt = $bridgeAt;
@@ -79,12 +79,12 @@ class ActiveCall extends BaseCall
         return $this->bridgeAt;
     }
 
-    public function getLastEvent(): Enum\Event
+    public function getLastEvent(): Phonet\Call\Event
     {
         return $this->lastEvent;
     }
 
-    public function getSubjects(): ?Collection\Subject
+    public function getSubjects(): ?Phonet\Subject\Collection
     {
         return $this->subjects;
     }

@@ -1,15 +1,15 @@
 <?php
 
-namespace Wearesho\Phonet\Data;
+namespace Wearesho\Phonet\Call;
 
 use Carbon\Carbon;
-use Wearesho\Phonet\Enum;
+use Wearesho\Phonet;
 
 /**
- * Class CompleteCall
- * @package Wearesho\Phonet\Data
+ * Class Complete
+ * @package Wearesho\Phonet\Call
  */
-class CompleteCall extends BaseCall
+class Complete extends Phonet\Call
 {
     /** @var Carbon */
     protected $endAt;
@@ -20,7 +20,7 @@ class CompleteCall extends BaseCall
     /** @var string|null */
     protected $subjectName;
 
-    /** @var Enum\Status */
+    /** @var Complete\Status */
     protected $status;
 
     /** @var string|null */
@@ -40,14 +40,14 @@ class CompleteCall extends BaseCall
 
     public function __construct(
         string $uuid,
-        Enum\Direction $direction,
-        Employee $employeeCaller,
+        Direction $direction,
+        Phonet\Employee $employeeCaller,
         Carbon $endAt,
-        Enum\Status $status,
+        Complete\Status $status,
         int $billSecs,
         int $duration,
         string $parentUuid = null,
-        Employee $employeeCallTaker = null,
+        Phonet\Employee $employeeCallTaker = null,
         string $subjectNumber = null,
         string $subjectName = null,
         string $trunk = null,
@@ -102,7 +102,7 @@ class CompleteCall extends BaseCall
         return $this->subjectName;
     }
 
-    public function getStatus(): Enum\Status
+    public function getStatus(): Complete\Status
     {
         return $this->status;
     }

@@ -1,6 +1,6 @@
 <?php
 
-namespace Wearesho\Phonet\Enum;
+namespace Wearesho\Phonet\Call\Complete;
 
 use MyCLabs\Enum\Enum;
 
@@ -9,7 +9,7 @@ use MyCLabs\Enum\Enum;
  *
  * This status exists only for complete calls
  *
- * @package Wearesho\Phonet\Enum
+ * @package Wearesho\Phonet\Call\Complete
  *
  * @method static Status TARGET_RESPONDED()
  * @method static Status TARGET_NOT_RESPONDED()

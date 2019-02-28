@@ -1,12 +1,12 @@
 <?php
 
-namespace Wearesho\Phonet\Data;
+namespace Wearesho\Phonet;
 
 /**
- * Trait SubjectTrait
+ * Class Collection
  * @package Wearesho\Phonet\Data
  */
-trait SubjectTrait
+class Subject implements \JsonSerializable
 {
     /** @var string|null */
     protected $id;
@@ -26,6 +26,21 @@ trait SubjectTrait
     /** @var string|null */
     protected $priority;
 
+    public function __construct(
+        string $number,
+        string $uri,
+        string $id = null,
+        string $name = null,
+        string $company = null,
+        string $priority = null
+    ) {
+        $this->id = $id;
+        $this->name = $name;
+        $this->number = $number;
+        $this->company = $company;
+        $this->uri = $uri;
+        $this->priority = $priority;
+    }
     public function jsonSerialize(): array
     {
         return [
