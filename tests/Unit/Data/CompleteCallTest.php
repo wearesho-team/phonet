@@ -4,9 +4,7 @@ namespace Wearesho\Phonet\Tests\Unit\Data;
 
 use Carbon\Carbon;
 use PHPUnit\Framework\TestCase;
-use Wearesho\Phonet\Data\CompleteCall;
-use Wearesho\Phonet\Data\Employee;
-use Wearesho\Phonet\Enum\Direction;
+use Wearesho\Phonet;
 
 /**
  * Class CompleteCallTest
@@ -30,23 +28,23 @@ class CompleteCallTest extends TestCase
     protected const TRANSFER_HISTORY = 'transfer-history';
     protected const AUDIO_REC_URL = 'audio-rec-url';
 
-    /** @var CompleteCall */
+    /** @var Phonet\Call\Complete */
     protected $completeCall;
 
     protected function setUp(): void
     {
         Carbon::setTestNow(Carbon::now());
 
-        $this->completeCall = new CompleteCall(
+        $this->completeCall = new Phonet\Call\Complete(
             static::UUID,
-            Direction::INTERNAL(),
-            new Employee(static::ID, static::INTERNAL_NUMBER, static::DISPLAY_NAME, static::TYPE, static::EMAIL),
+            Phonet\Call\Direction::INTERNAL(),
+            new Phonet\Employee(static::ID, static::INTERNAL_NUMBER, static::DISPLAY_NAME, static::TYPE, static::EMAIL),
             Carbon::getTestNow(),
             static::DISPOSITION,
             static::BILL_SECS,
             static::DURATION,
             static::PARENT_UUID,
-            new Employee(static::ID, static::INTERNAL_NUMBER, static::DISPLAY_NAME, static::TYPE, static::EMAIL),
+            new Phonet\Employee(static::ID, static::INTERNAL_NUMBER, static::DISPLAY_NAME, static::TYPE, static::EMAIL),
             static::SUBJECT_NUMBER,
             static::SUBJECT_NAME,
             static::TRUNK,
@@ -62,7 +60,7 @@ class CompleteCallTest extends TestCase
 
     public function testInstance(): void
     {
-        $this->assertInstanceOf(CompleteCall::class, $this->completeCall);
+        $this->assertInstanceOf(Phonet\Call\Complete::class, $this->completeCall);
     }
 
     public function testJsonSerialize(): void
@@ -71,15 +69,15 @@ class CompleteCallTest extends TestCase
             [
                 'uuid' => static::UUID,
                 'parentUuid' => static::PARENT_UUID,
-                'direction' => Direction::INTERNAL(),
-                'employeeCaller' => new Employee(
+                'direction' => Phonet\Call\Direction::INTERNAL(),
+                'employeeCaller' => new Phonet\Employee(
                     static::ID,
                     static::INTERNAL_NUMBER,
                     static::DISPLAY_NAME,
                     static::TYPE,
                     static::EMAIL
                 ),
-                'employeeCallTaker' => new Employee(
+                'employeeCallTaker' => new Phonet\Employee(
                     static::ID,
                     static::INTERNAL_NUMBER,
                     static::DISPLAY_NAME,

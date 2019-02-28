@@ -30,17 +30,17 @@ class ActiveCallTest extends TestCase
     protected const TRUNK_NAME = 'trunk-name';
     protected const SUBJECT_ID = 'subject-id';
 
-    /** @var Phonet\Data\ActiveCall */
+    /** @var Phonet\Call\Active */
     protected $activeCall;
 
     protected function setUp(): void
     {
-        $this->activeCall = new Phonet\Data\ActiveCall(
+        $this->activeCall = new Phonet\Call\Active(
             static::UUID,
             Carbon::make(static::DIAL_AT),
-            Phonet\Enum\Direction::IN(),
-            Phonet\Enum\Event::HANGUP(),
-            new Phonet\Data\Employee(
+            Phonet\Call\Direction::IN(),
+            Phonet\Call\Event::HANGUP(),
+            new Phonet\Employee(
                 static::ID,
                 static::INTERNAL_NUMBER,
                 static::DISPLAY_NAME,
@@ -51,15 +51,15 @@ class ActiveCallTest extends TestCase
             static::TRUNK_NAME,
             static::PARENT_UUID,
             Carbon::make(static::BRIDGE_AT),
-            new Phonet\Data\Employee(
+            new Phonet\Employee(
                 static::ID,
                 static::INTERNAL_NUMBER,
                 static::DISPLAY_NAME,
                 static::TYPE,
                 static::EMAIL
             ),
-            new Phonet\Data\Collection\Subject([
-                new Phonet\Data\Subject(
+            new Phonet\Subject\Collection([
+                new Phonet\Subject(
                     static::SUBJECT_ID,
                     static::NAME,
                     static::NUMBER,
@@ -73,7 +73,7 @@ class ActiveCallTest extends TestCase
 
     public function testInstance()
     {
-        $this->assertInstanceOf(Phonet\Data\ActiveCall::class, $this->activeCall);
+        $this->assertInstanceOf(Phonet\Call\Active::class, $this->activeCall);
     }
 
     /**
@@ -119,7 +119,7 @@ class ActiveCallTest extends TestCase
      */
     public function testGetDirection(): void
     {
-        $this->assertEquals(Phonet\Enum\Direction::IN(), $this->activeCall->getDirection());
+        $this->assertEquals(Phonet\Call\Direction::IN(), $this->activeCall->getDirection());
     }
 
     /**
@@ -127,7 +127,7 @@ class ActiveCallTest extends TestCase
      */
     public function testGetLastEvent(): void
     {
-        $this->assertEquals(Phonet\Enum\Event::HANGUP(), $this->activeCall->getLastEvent());
+        $this->assertEquals(Phonet\Call\Event::HANGUP(), $this->activeCall->getLastEvent());
     }
 
     /**
@@ -136,7 +136,7 @@ class ActiveCallTest extends TestCase
     public function testGetEmployeeCaller(): void
     {
         $this->assertEquals(
-            new Phonet\Data\Employee(
+            new Phonet\Employee(
                 static::ID,
                 static::INTERNAL_NUMBER,
                 static::DISPLAY_NAME,
@@ -153,7 +153,7 @@ class ActiveCallTest extends TestCase
     public function testGetEmployeeCallTaker(): void
     {
         $this->assertEquals(
-            new Phonet\Data\Employee(
+            new Phonet\Employee(
                 static::ID,
                 static::INTERNAL_NUMBER,
                 static::DISPLAY_NAME,
@@ -170,8 +170,8 @@ class ActiveCallTest extends TestCase
     public function testGetSubjects(): void
     {
         $this->assertEquals(
-            new Phonet\Data\Collection\Subject([
-                new Phonet\Data\Subject(
+            new Phonet\Subject\Collection([
+                new Phonet\Subject(
                     static::SUBJECT_ID,
                     static::NAME,
                     static::NUMBER,
@@ -211,24 +211,24 @@ class ActiveCallTest extends TestCase
                 'parentUuid' => static::PARENT_UUID,
                 'dialAt' => Carbon::make(static::DIAL_AT),
                 'bridgeAt' => Carbon::make(static::BRIDGE_AT),
-                'direction' => Phonet\Enum\Direction::IN(),
-                'lastEvent' => Phonet\Enum\Event::HANGUP(),
-                'employeeCaller' => new Phonet\Data\Employee(
+                'direction' => Phonet\Call\Direction::IN(),
+                'lastEvent' => Phonet\Call\Event::HANGUP(),
+                'employeeCaller' => new Phonet\Employee(
                     static::ID,
                     static::INTERNAL_NUMBER,
                     static::DISPLAY_NAME,
                     static::TYPE,
                     static::EMAIL
                 ),
-                'employeeCallTaker' => new Phonet\Data\Employee(
+                'employeeCallTaker' => new Phonet\Employee(
                     static::ID,
                     static::INTERNAL_NUMBER,
                     static::DISPLAY_NAME,
                     static::TYPE,
                     static::EMAIL
                 ),
-                'subjects' => new Phonet\Data\Collection\Subject([
-                    new Phonet\Data\Subject(
+                'subjects' => new Phonet\Subject\Collection([
+                    new Phonet\Subject(
                         static::SUBJECT_ID,
                         static::NAME,
                         static::NUMBER,

@@ -1,14 +1,14 @@
 <?php
 
-namespace Wearesho\Phonet\Data;
+namespace Wearesho\Phonet;
 
-use Wearesho\Phonet\Enum\Direction;
+use Wearesho\Phonet\Call\Direction;
 
 /**
  * Class Call
  * @package Wearesho\Phonet\Data
  */
-abstract class BaseCall implements \JsonSerializable
+abstract class Call implements \JsonSerializable
 {
     /** @var string */
     protected $uuid;

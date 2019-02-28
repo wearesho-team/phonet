@@ -3,7 +3,6 @@
 namespace Wearesho\Phonet;
 
 use Carbon\Carbon;
-use GuzzleHttp;
 
 /**
  * Class Repository
@@ -55,10 +54,10 @@ class Repository
     }
 
     /**
-     * @return Data\Collection\ActiveCall
+     * @return Call\Active\Collection
      * @throws Exception
      */
-    public function activeCalls(): Data\Collection\ActiveCall
+    public function activeCalls(): Call\Active\Collection
     {
         return $this->parseActiveCalls(
             $this->sender->get('rest/calls/active/v3', null)
@@ -68,20 +67,20 @@ class Repository
     /**
      * @param \DateTimeInterface $from
      * @param \DateTimeInterface $to
-     * @param Data\Collection\Direction $directions
+     * @param Call\Direction\Collection $directions
      * @param int $limit
      * @param int $offset
      *
-     * @return Data\Collection\CompleteCall
+     * @return Call\Complete\Collection
      * @throws Exception
      */
     public function companyCalls(
         \DateTimeInterface $from,
         \DateTimeInterface $to,
-        Data\Collection\Direction $directions,
+        Call\Direction\Collection $directions,
         int $limit = 50,
         int $offset = 0
-    ): Data\Collection\CompleteCall {
+    ): Call\Complete\Collection {
         return $this->getCompleteCalls(
             "rest/calls/company.api",
             $from,
@@ -95,20 +94,20 @@ class Repository
     /**
      * @param \DateTimeInterface $from
      * @param \DateTimeInterface $to
-     * @param Data\Collection\Direction $directions
+     * @param Call\Direction\Collection $directions
      * @param int $limit
      * @param int $offset
      *
-     * @return Data\Collection\CompleteCall
+     * @return Call\Complete\Collection
      * @throws Exception
      */
     public function missedCalls(
         \DateTimeInterface $from,
         \DateTimeInterface $to,
-        Data\Collection\Direction $directions,
+        Call\Direction\Collection $directions,
         int $limit = 50,
         int $offset = 0
-    ): Data\Collection\CompleteCall {
+    ): Call\Complete\Collection {
         return $this->getCompleteCalls(
             "rest/calls/missed.api",
             $from,
@@ -122,20 +121,20 @@ class Repository
     /**
      * @param \DateTimeInterface $from
      * @param \DateTimeInterface $to
-     * @param Data\Collection\Direction|null $directions
+     * @param Call\Direction\Collection|null $directions
      * @param int $limit
      * @param int $offset
      *
-     * @return Data\Collection\CompleteCall
+     * @return Call\Complete\Collection
      * @throws Exception
      */
     public function usersCalls(
         \DateTimeInterface $from,
         \DateTimeInterface $to,
-        Data\Collection\Direction $directions = null,
+        Call\Direction\Collection $directions = null,
         int $limit = 50,
         int $offset = 0
-    ): Data\Collection\CompleteCall {
+    ): Call\Complete\Collection {
         return $this->getCompleteCalls(
             "rest/calls/users.api",
             $from,
@@ -150,28 +149,28 @@ class Repository
      * @param string $api
      * @param \DateTimeInterface $from
      * @param \DateTimeInterface $to
-     * @param Data\Collection\Direction $directions
+     * @param Call\Direction\Collection $directions
      * @param int $limit
      * @param int $offset
      *
-     * @return Data\Collection\CompleteCall
+     * @return Call\Complete\Collection
      * @throws Exception
      */
     protected function getCompleteCalls(
         string $api,
         \DateTimeInterface $from,
         \DateTimeInterface $to,
-        Data\Collection\Direction $directions,
+        Call\Direction\Collection $directions,
         int $limit,
         int $offset
-    ): Data\Collection\CompleteCall {
+    ): Call\Complete\Collection {
         $this->validateLimit($limit);
         $this->validateOffset($offset);
 
         $directions = $directions
             ?
             [
-                'directions' => \array_map(function (Enum\Direction $direction): int {
+                'directions' => \array_map(function (Call\Direction $direction): int {
                     return $direction->getValue();
                 }, $directions->getArrayCopy())
             ]
@@ -189,13 +188,13 @@ class Repository
     }
 
     /**
-     * @return Data\Collection\Employee
+     * @return Employee\Collection
      * @throws Exception
      */
-    public function users(): Data\Collection\Employee
+    public function users(): Employee\Collection
     {
-        return new Data\Collection\Employee(\array_map(function ($employee): Data\Employee {
-            return new Data\Employee(
+        return new Employee\Collection(\array_map(function ($employee): Employee {
+            return new Employee(
                 $employee[static::ID],
                 $employee[static::EMPLOYEE_NUMBER],
                 $employee[static::DISPLAY_NAME],
@@ -205,16 +204,16 @@ class Repository
         }, $this->sender->get('rest/users', null)));
     }
 
-    protected function parseCompletedCalls(array $data): Data\Collection\CompleteCall
+    protected function parseCompletedCalls(array $data): Call\Complete\Collection
     {
-        return new Data\Collection\CompleteCall(\array_map(function (array $call): Data\CompleteCall {
+        return new Call\Complete\Collection(\array_map(function (array $call): Call\Complete {
             $caller = $call[static::CALLER];
             $employeeCallTaker = $call[static::EMPLOYEE_CALL_TAKER];
 
-            return new Data\CompleteCall(
+            return new Call\Complete(
                 $call[static::UUID],
-                new Enum\Direction($call[static::DIRECTION]),
-                new Data\Employee(
+                new Call\Direction($call[static::DIRECTION]),
+                new Employee(
                     $caller[static::ID],
                     $caller[static::EMPLOYEE_NUMBER],
                     $caller[static::DISPLAY_NAME],
@@ -226,7 +225,7 @@ class Repository
                 $call[static::DURATION],
                 \array_key_exists(static::PARENT_UUID, $call) ? $call[static::PARENT_UUID] : null,
                 !\is_null($employeeCallTaker)
-                    ? new Data\Employee(
+                    ? new Employee(
                         $employeeCallTaker[static::ID],
                         $employeeCallTaker[static::EMPLOYEE_NUMBER],
                         $employeeCallTaker[static::DISPLAY_NAME],
@@ -242,34 +241,34 @@ class Repository
         }, $data));
     }
 
-    protected function parseActiveCalls(array $data): Data\Collection\ActiveCall
+    protected function parseActiveCalls(array $data): Call\Active\Collection
     {
-        return new Data\Collection\ActiveCall(\array_map(function (array $call): Data\ActiveCall {
+        return new Call\Active\Collection(\array_map(function (array $call): Call\Active {
             $bridgeAt = $call[static::BRIDGE_AT];
             $caller = $call[static::CALLER];
             $employeeCallTaker = $call[static::EMPLOYEE_CALL_TAKER];
             $subjects = $call[static::SUBJECT_COLLECTION] ?? [];
 
-            return new Data\ActiveCall(
+            return new Call\Active(
                 $call[static::UUID],
                 Carbon::createFromTimestamp($call[static::DIAL_AT]),
-                new Enum\Direction($call[static::DIRECTION]),
-                new Enum\Event($call[static::LAST_EVENT]),
-                new Data\Employee($caller[static::ID], $caller[static::EMPLOYEE_NUMBER], $caller[static::DISPLAY_NAME]),
+                new Call\Direction($call[static::DIRECTION]),
+                new Call\Event($call[static::LAST_EVENT]),
+                new Employee($caller[static::ID], $caller[static::EMPLOYEE_NUMBER], $caller[static::DISPLAY_NAME]),
                 $call[static::TRUNK_NUMBER],
                 $call[static::TRUNK_NAME],
                 $call[static::PARENT_UUID],
                 !\is_null($bridgeAt) ? Carbon::createFromTimestamp($bridgeAt) : null,
                 !\is_null($employeeCallTaker)
-                    ? new Data\Employee(
+                    ? new Employee(
                         $employeeCallTaker[static::ID],
                         $employeeCallTaker[static::EMPLOYEE_NUMBER],
                         $employeeCallTaker[static::DISPLAY_NAME]
                     )
                     : null,
                 $subjects
-                    ? new Data\Collection\Subject(\array_map(function (array $subject): Data\Subject {
-                        return new Data\Subject(
+                    ? new Subject\Collection(\array_map(function (array $subject): Subject {
+                        return new Subject(
                             $subject[static::NUMBER],
                             $subject[static::URL],
                             $subject[static::ID],
