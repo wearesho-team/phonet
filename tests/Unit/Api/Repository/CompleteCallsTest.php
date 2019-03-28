@@ -33,22 +33,19 @@ class CompleteCallsTest extends TestCase
 
         $sentRequest = $this->fetchSentRequest(false);
 
-        $this->assertEquals(
-            [
-                'timeFrom' => $from->timestamp,
-                'timeTo' => $to->timestamp,
-                'limit' => 50,
-                'offset' => 0,
-                'directions' => [
-                    Phonet\Call\Direction::OUT,
-                ]
-            ],
-            \json_decode($sentRequest->getBody()->getContents(), true)
-        );
+        $query = implode('&', [
+            "timeFrom=" . ($from->timestamp * 1000),
+            "timeTo=" . ($to->timestamp * 1000),
+            "limit=50",
+            "offset=0",
+            "directions%5B0%5D=" . Phonet\Call\Direction::OUT,
+            "directions%5B1%5D=" . Phonet\Call\Direction::IN,
+        ]);
+        $this->assertEquals($query, $sentRequest->getUri()->getQuery());
         $this->assertEmpty($sentRequest->getBody()->getContents());
         $this->checkMethodGet($sentRequest);
         $this->checkCookieHeader($sentRequest, static::SESSION_ID);
-        $this->checkApi($sentRequest, "/$api");
+        $this->checkApi($sentRequest, "/{$api}?{$query}");
         $this->checkCachedResponse($this->getCacheKey());
 
         $this->parseCompleteCalls($companyCalls);
@@ -80,22 +77,19 @@ class CompleteCallsTest extends TestCase
 
         $sentRequest = $this->fetchSentRequest(true);
 
-        $this->assertEquals(
-            [
-                'timeFrom' => $from->timestamp,
-                'timeTo' => $to->timestamp,
-                'limit' => 50,
-                'offset' => 0,
-                'directions' => [
-                    Phonet\Call\Direction::OUT,
-                ]
-            ],
-            \json_decode($sentRequest->getBody()->getContents(), true)
-        );
+        $query = implode('&', [
+            "timeFrom=" . ($from->timestamp * 1000),
+            "timeTo=" . ($to->timestamp * 1000),
+            "limit=50",
+            "offset=0",
+            "directions%5B0%5D=" . Phonet\Call\Direction::OUT,
+            "directions%5B1%5D=" . Phonet\Call\Direction::IN,
+        ]);
+        $this->assertEquals($query, $sentRequest->getUri()->getQuery());
         $this->assertEmpty($sentRequest->getBody()->getContents());
         $this->checkMethodGet($sentRequest);
         $this->checkCookieHeader($sentRequest, static::SESSION_ID);
-        $this->checkApi($sentRequest, "/$api");
+        $this->checkApi($sentRequest, "/{$api}?{$query}");
         $this->checkCachedResponse($key);
         /** @noinspection PhpUnhandledExceptionInspection */
         $this->assertEquals($this->createCookie(static::SESSION_ID), $this->cache->get($key));
@@ -123,22 +117,18 @@ class CompleteCallsTest extends TestCase
 
         $sentRequest = $this->fetchSentRequest(false, true);
 
-        $this->assertEquals(
-            [
-                'timeFrom' => $from->timestamp,
-                'timeTo' => $to->timestamp,
-                'limit' => 50,
-                'offset' => 0,
-                'directions' => [
-                    Phonet\Call\Direction::OUT,
-                ]
-            ],
-            \json_decode($sentRequest->getBody()->getContents(), true)
-        );
-        $this->assertEmpty($sentRequest->getBody()->getContents());
+        $query = implode('&', [
+            "timeFrom=" . ($from->timestamp * 1000),
+            "timeTo=" . ($to->timestamp * 1000),
+            "limit=50",
+            "offset=0",
+            "directions%5B0%5D=" . Phonet\Call\Direction::OUT,
+            "directions%5B1%5D=" . Phonet\Call\Direction::IN,
+        ]);
+        $this->assertEquals($query, $sentRequest->getUri()->getQuery());
         $this->checkMethodGet($sentRequest);
         $this->checkCookieHeader($sentRequest, static::SESSION_ID);
-        $this->checkApi($sentRequest, "/$api");
+        $this->checkApi($sentRequest, "/{$api}?{$query}");
         $this->checkCachedResponse($key);
         /** @noinspection PhpUnhandledExceptionInspection */
         $this->assertEquals($this->createCookie(static::SESSION_ID), $this->cache->get($key));
@@ -314,6 +304,7 @@ class CompleteCallsTest extends TestCase
             $to,
             new Phonet\Call\Direction\Collection([
                 Phonet\Call\Direction::OUT(),
+                Phonet\Call\Direction::IN(),
             ]),
             $limit,
             $offset
