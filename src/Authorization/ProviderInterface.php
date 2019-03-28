@@ -2,7 +2,6 @@
 
 namespace Wearesho\Phonet\Authorization;
 
-use GuzzleHttp\Cookie\CookieJarInterface;
 use Wearesho\Phonet\ConfigInterface;
 
 /**
@@ -16,9 +15,9 @@ interface ProviderInterface
      *
      * @param ConfigInterface $config
      *
-     * @return CookieJarInterface Cookie container that contain JSESSIONID that must used for other api requests
+     * @return string Cookie JSESSIONID that must used for other api requests
      *
      * @throws ProviderException
      */
-    public function provide(ConfigInterface $config): CookieJarInterface;
+    public function provide(ConfigInterface $config): string;
 }

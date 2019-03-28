@@ -56,9 +56,7 @@ class CacheProviderTest extends TestCase
 
         $this->mock->append(
             new GuzzleHttp\Psr7\Response(200, [
-                'set-cookie' => [
-                    'JSESSIONID' => 'test-id'
-                ]
+                'Set-Cookie' => 'JSESSIONID=test-id'
             ])
         );
 
@@ -87,9 +85,7 @@ class CacheProviderTest extends TestCase
 
         $this->mock->append(
             new GuzzleHttp\Psr7\Response(200, [
-                'set-cookie' => [
-                    'JSESSIONID' => 'test-id'
-                ]
+                'Set-Cookie' => 'JSESSIONID=test-id'
             ])
         );
 
@@ -97,39 +93,6 @@ class CacheProviderTest extends TestCase
 
         /** @noinspection PhpUnhandledExceptionInspection */
         $this->provider->provide($this->config);
-    }
-
-    public function testOverrideWithForceProvide(): void
-    {
-        $cache = new SimpleCache\Cache(
-            new SimpleCache\Drivers\MemoryCacheDriver()
-        );
-        $this->provider = new Phonet\Authorization\CacheProvider(
-            $cache,
-            $this->client
-        );
-        /** @noinspection PhpUnhandledExceptionInspection */
-        $cache->set(
-            "phonet.authorization." . sha1($this->config->getDomain() . $this->config->getApiKey()),
-            'invalid-data'
-        );
-
-        $this->mock->append(
-            new GuzzleHttp\Psr7\Response(200, [
-                'set-cookie' => [
-                    'JSESSIONID' => 'test-id'
-                ]
-            ])
-        );
-
-        /** @noinspection PhpUnhandledExceptionInspection */
-        $cookie = $this->provider->provide($this->config);
-
-        /** @noinspection PhpUnhandledExceptionInspection */
-        $duplicatedCookie = $this->provider->provide($this->config);
-
-        $this->assertEquals($cookie, $duplicatedCookie);
-        $this->assertCount(1, $this->container, 'Only one HTTP request should be done');
     }
 
     public function testFailedGetCache(): void
@@ -155,9 +118,7 @@ class CacheProviderTest extends TestCase
 
         $this->mock->append(
             new GuzzleHttp\Psr7\Response(200, [
-                'set-cookie' => [
-                    'JSESSIONID' => 'test-id'
-                ]
+                'Set-Cookie' => 'JSESSIONID=test-id'
             ])
         );
 

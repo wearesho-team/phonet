@@ -13,6 +13,7 @@ use Wearesho\Phonet\Authorization\CacheException;
 class CacheExceptionTest extends TestCase
 {
     protected const CACHE_KEY = 'key';
+    protected const SESSION_ID = 'id';
 
     /** @var CacheException */
     protected $fakeCacheException;
@@ -21,7 +22,7 @@ class CacheExceptionTest extends TestCase
     {
         $this->fakeCacheException = new CacheException(
             static::CACHE_KEY,
-            new CookieJar()
+            static::SESSION_ID
         );
     }
 
@@ -32,7 +33,7 @@ class CacheExceptionTest extends TestCase
 
     public function testGetCookieJar(): void
     {
-        $this->assertEquals(new CookieJar(), $this->fakeCacheException->getCookieJar());
+        $this->assertEquals(static::SESSION_ID, $this->fakeCacheException->getSessionId());
     }
 
     public function testToString(): void

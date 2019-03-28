@@ -47,9 +47,7 @@ class ProviderTest extends TestCase
     {
         $this->mock->append(
             new GuzzleHttp\Psr7\Response(200, [
-                'set-cookie' => [
-                    'JSESSIONID' => 'test-id'
-                ]
+                'Set-Cookie' => 'JSESSIONID=test-id'
             ])
         );
 
@@ -67,21 +65,6 @@ class ProviderTest extends TestCase
             (string)$sentRequest->getUri()
         );
 
-        $this->assertEquals(
-            [
-                [
-                    'Name' => 'JSESSIONID',
-                    'Value' => 'test-id',
-                    'Domain' => 'test4.domain.com.ua',
-                    'Path' => '/',
-                    'Max-Age' => null,
-                    'Expires' => null,
-                    'Secure' => false,
-                    'Discard' => true,
-                    'HttpOnly' => false,
-                ],
-            ],
-            $cookies->toArray()
-        );
+        $this->assertEquals('JSESSIONID=test-id', $cookies);
     }
 }
