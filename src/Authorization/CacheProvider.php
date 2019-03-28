@@ -25,7 +25,7 @@ class CacheProvider extends Provider implements CacheProviderInterface
     /**
      * @param ConfigInterface $config
      *
-     * @return GuzzleHttp\Cookie\CookieJarInterface
+     * @return string
      * @throws ProviderException
      */
     public function provide(ConfigInterface $config): string
