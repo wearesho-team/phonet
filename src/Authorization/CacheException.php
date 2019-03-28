@@ -2,8 +2,6 @@
 
 namespace Wearesho\Phonet\Authorization;
 
-use GuzzleHttp;
-
 /**
  * Class CacheException
  * @package Wearesho\Phonet\Authorization
@@ -13,7 +11,7 @@ class CacheException extends \RuntimeException
     /** @var string */
     protected $cacheKey;
 
-    /** @var GuzzleHttp\Cookie\CookieJarInterface|null */
+    /** @var string|null */
     protected $sessionId;
 
     public function __construct(
