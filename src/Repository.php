@@ -219,7 +219,7 @@ class Repository
                     $caller[static::DISPLAY_NAME],
                     $caller[static::TYPE]
                 ),
-                Carbon::createFromTimestamp($call[static::END_AT]),
+                Carbon::createFromTimestampMs($call[static::END_AT]),
                 new Call\Complete\Status((int)$call[static::DISPOSITION]),
                 $call[static::BILL_SECS],
                 $call[static::DURATION],
