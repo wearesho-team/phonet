@@ -83,7 +83,7 @@ class Sender implements RestInterface
             $response = $this->client->request($method, $uri, \array_merge_recursive([
                 GuzzleHttp\RequestOptions::HEADERS => [
                     Sender::COOKIE => $sessionId,
-                ]
+                ],
             ], $options));
         } catch (GuzzleHttp\Exception\GuzzleException $exception) {
             // Checking exception with hasResponse() is optional, but for better logic execution it must be here
@@ -95,10 +95,11 @@ class Sender implements RestInterface
             ) {
                 try {
                     // CacheProvider can throw ProviderException or CacheException so no reasons to catch them
+                    $sessionId = $this->provider->forceProvide($this->config);
                     $response = $this->client->request($method, $uri, \array_merge_recursive([
                         GuzzleHttp\RequestOptions::HEADERS => [
-                            Sender::COOKIE => $this->provider->forceProvide($this->config)
-                        ]
+                            Sender::COOKIE => $sessionId
+                        ],
                     ], $options));
                 } catch (GuzzleHttp\Exception\GuzzleException $exception) {
                     throw new Exception("Api [$api] with force auth failed", $exception->getCode(), $exception);
