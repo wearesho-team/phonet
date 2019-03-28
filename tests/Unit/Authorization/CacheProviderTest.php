@@ -56,7 +56,7 @@ class CacheProviderTest extends TestCase
 
         $this->mock->append(
             new GuzzleHttp\Psr7\Response(200, [
-                'set-cookie' => 'JSESSIONID=test-id'
+                'Set-Cookie' => 'JSESSIONID=test-id'
             ])
         );
 
@@ -85,7 +85,7 @@ class CacheProviderTest extends TestCase
 
         $this->mock->append(
             new GuzzleHttp\Psr7\Response(200, [
-                'set-cookie' => 'JSESSIONID=test-id'
+                'Set-Cookie' => 'JSESSIONID=test-id'
             ])
         );
 
@@ -118,7 +118,7 @@ class CacheProviderTest extends TestCase
 
         $this->mock->append(
             new GuzzleHttp\Psr7\Response(200, [
-                'set-cookie' => 'JSESSIONID=test-id'
+                'Set-Cookie' => 'JSESSIONID=test-id'
             ])
         );
 

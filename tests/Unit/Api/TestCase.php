@@ -57,7 +57,7 @@ class TestCase extends \PHPUnit\Framework\TestCase
 
     protected function getSuccessAuthResponse(string $id): GuzzleHttp\Psr7\Response
     {
-        return $this->getResponse(200, null, ['set-cookie' => $this->createCookie($id)]);
+        return $this->getResponse(200, null, ['Set-Cookie' => $this->createCookie($id)]);
     }
 
     protected function getForbiddenAuthResponse(): GuzzleHttp\Psr7\Response

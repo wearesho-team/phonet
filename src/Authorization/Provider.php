@@ -11,7 +11,7 @@ use Wearesho\Phonet\ConfigInterface;
  */
 class Provider implements ProviderInterface
 {
-    public const SESSION_ID = 'JSESSIONID';
+    protected const COOKIES = 'Set-Cookie';
 
     /** @var GuzzleHttp\ClientInterface */
     protected $client;
@@ -58,6 +58,9 @@ class Provider implements ProviderInterface
      */
     private function fetchSessionId(array $headers): string
     {
-        return \explode('; ', $headers['set-cookie'][0])[0];
+        $cookieHeader = $headers[Provider::COOKIES];
+        $cookies = \explode('; ', \array_shift($cookieHeader));
+
+        return \array_shift($cookies);
     }
 }
