@@ -37,14 +37,16 @@ class Sender implements RestInterface
 
     /**
      * @param string $api
-     * @param string|null $body
+     * @param array $params
      *
      * @return array
      * @throws Exception
      */
-    public function get(string $api, string $body = null): array
+    public function get(string $api, array $params = []): array
     {
-        return $this->send('GET', $api, $body);
+        return $this->send('GET', $api, null, [
+            GuzzleHttp\RequestOptions::QUERY => $params
+        ]);
     }
 
     /**
@@ -63,18 +65,19 @@ class Sender implements RestInterface
      * @param string $method
      * @param string $api
      * @param string|null $body
+     * @param array $options
      *
      * @return array
      * @throws Exception
      */
-    public function send(string $method, string $api, ?string $body): array
+    public function send(string $method, string $api, ?string $body, array $options = []): array
     {
-        $options = [
+        $options = \array_merge([
             GuzzleHttp\RequestOptions::HEADERS => [
                 'Content-Type' => 'application/json',
             ],
             GuzzleHttp\RequestOptions::BODY => $body
-        ];
+        ], $options);
         $uri = "https://{$this->config->getDomain()}/{$api}";
 
         try {

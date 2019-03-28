@@ -60,7 +60,7 @@ class Repository
     public function activeCalls(): Call\Active\Collection
     {
         return $this->parseActiveCalls(
-            $this->sender->get('rest/calls/active/v3', null)
+            $this->sender->get('rest/calls/active/v3')
         );
     }
 
@@ -178,12 +178,12 @@ class Repository
             [];
 
         return $this->parseCompletedCalls(
-            $this->sender->get($api, \json_encode(\array_merge([
-                static::FROM => Carbon::make($from)->timestamp,
-                static::TO => Carbon::make($to)->timestamp,
+            $this->sender->get($api, \array_merge([
+                static::FROM => Carbon::make($from)->timestamp * 1000,
+                static::TO => Carbon::make($to)->timestamp * 1000,
                 static::LIMIT => $limit,
                 static::OFFSET => $offset,
-            ], $directions)))
+            ], $directions))
         );
     }
 
@@ -201,7 +201,7 @@ class Repository
                 null,
                 $employee[static::EMAIL]
             );
-        }, $this->sender->get('rest/users', null)));
+        }, $this->sender->get('rest/users')));
     }
 
     protected function parseCompletedCalls(array $data): Call\Complete\Collection
