@@ -28,7 +28,7 @@ class CacheProvider extends Provider implements CacheProviderInterface
      * @return GuzzleHttp\Cookie\CookieJarInterface
      * @throws ProviderException
      */
-    public function provide(ConfigInterface $config): GuzzleHttp\Cookie\CookieJarInterface
+    public function provide(ConfigInterface $config): string
     {
         $key = $this->getCacheKey($config);
         try {
@@ -37,7 +37,7 @@ class CacheProvider extends Provider implements CacheProviderInterface
             throw new CacheException($key, null, $exception->getMessage(), $exception->getCode(), $exception);
         }
 
-        if (!$cached instanceof GuzzleHttp\Cookie\CookieJarInterface) {
+        if (!$cached) {
             return $this->forceProvide($config);
         }
 
@@ -47,32 +47,38 @@ class CacheProvider extends Provider implements CacheProviderInterface
     /**
      * @param ConfigInterface $config
      *
-     * @return GuzzleHttp\Cookie\CookieJarInterface
+     * @return string
      * @throws ProviderException
      */
-    public function forceProvide(ConfigInterface $config): GuzzleHttp\Cookie\CookieJarInterface
+    public function forceProvide(ConfigInterface $config): string
     {
         $cacheKey = $this->getCacheKey($config);
-        $response = parent::provide($config);
-        $this->cacheResponse($cacheKey, $response);
+        $sessionId = parent::provide($config);
+        $this->cacheResponse($cacheKey, $sessionId);
 
-        return $response;
+        return $sessionId;
     }
 
     /**
      * @param string $cacheKey
-     * @param GuzzleHttp\Cookie\CookieJarInterface $response
+     * @param string $sessionId
      */
-    protected function cacheResponse(string $cacheKey, GuzzleHttp\Cookie\CookieJarInterface $response): void
+    protected function cacheResponse(string $cacheKey, string $sessionId): void
     {
         try {
-            $isCacheSet = $this->cache->set($cacheKey, $response);
+            $isCacheSet = $this->cache->set($cacheKey, $sessionId);
         } catch (\Psr\SimpleCache\InvalidArgumentException $exception) {
-            throw new CacheException($cacheKey, $response, $exception->getMessage(), $exception->getCode(), $exception);
+            throw new CacheException(
+                $cacheKey,
+                $sessionId,
+                $exception->getMessage(),
+                $exception->getCode(),
+                $exception
+            );
         }
 
         if (!$isCacheSet) {
-            throw new CacheException($cacheKey, $response);
+            throw new CacheException($cacheKey, $sessionId);
         }
     }
 

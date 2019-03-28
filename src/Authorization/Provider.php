@@ -11,6 +11,8 @@ use Wearesho\Phonet\ConfigInterface;
  */
 class Provider implements ProviderInterface
 {
+    public const SESSION_ID = 'JSESSIONID';
+
     /** @var GuzzleHttp\ClientInterface */
     protected $client;
 
@@ -22,10 +24,10 @@ class Provider implements ProviderInterface
     /**
      * @param ConfigInterface $config
      *
-     * @return GuzzleHttp\Cookie\CookieJarInterface
+     * @return string
      * @throws ProviderException
      */
-    public function provide(ConfigInterface $config): GuzzleHttp\Cookie\CookieJarInterface
+    public function provide(ConfigInterface $config): string
     {
         $domain = $config->getDomain();
         $request = new GuzzleHttp\Psr7\Request(
@@ -46,9 +48,16 @@ class Provider implements ProviderInterface
             throw new ProviderException($domain, $exception->getMessage(), $exception->getCode(), $exception);
         }
 
-        return GuzzleHttp\Cookie\CookieJar::fromArray(
-            $response->getHeader('set-cookie'),
-            $config->getDomain()
-        );
+        return $this->fetchSessionId($response->getHeaders());
+    }
+
+    /**
+     * @param array $headers
+     *
+     * @return string
+     */
+    private function fetchSessionId(array $headers): string
+    {
+        return \explode('; ', $headers['set-cookie'][0])[0];
     }
 }

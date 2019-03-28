@@ -57,7 +57,7 @@ class TestCase extends \PHPUnit\Framework\TestCase
 
     protected function getSuccessAuthResponse(string $id): GuzzleHttp\Psr7\Response
     {
-        return $this->getResponse(200, null, ['set-cookie' => ['JSESSIONID' => $id]]);
+        return $this->getResponse(200, null, ['set-cookie' => $this->createCookie($id)]);
     }
 
     protected function getForbiddenAuthResponse(): GuzzleHttp\Psr7\Response
@@ -112,15 +112,15 @@ class TestCase extends \PHPUnit\Framework\TestCase
         return "phonet.authorization." . sha1($this->config->getDomain() . $this->config->getApiKey());
     }
 
-    protected function presetCache(string $cacheKey, GuzzleHttp\Cookie\CookieJar $cookieJar): void
+    protected function presetCache(string $cacheKey, string $sessionId): void
     {
         /** @noinspection PhpUnhandledExceptionInspection */
-        $this->assertTrue($this->cache->set($cacheKey, $cookieJar));
+        $this->assertTrue($this->cache->set($cacheKey, $sessionId));
     }
 
-    protected function createCookie(string $id): GuzzleHttp\Cookie\CookieJar
+    protected function createCookie(string $id): string
     {
-        return GuzzleHttp\Cookie\CookieJar::fromArray(['JSESSIONID' => $id], $this->config->getDomain());
+        return "JSESSIONID={$id}";
     }
 
     protected function checkAuthBody(GuzzleHttp\Psr7\Request $request): void
@@ -147,7 +147,7 @@ class TestCase extends \PHPUnit\Framework\TestCase
 
     protected function checkCookieHeader(GuzzleHttp\Psr7\Request $request, $needId): void
     {
-        $this->assertEquals(["JSESSIONID={$needId}"], $request->getHeader('Cookie'));
+        $this->assertEquals([$this->createCookie($needId)], $request->getHeaders()['Cookie']);
     }
 
     protected function checkMethodGet(GuzzleHttp\Psr7\Request $request): void

@@ -14,6 +14,8 @@ class Sender implements RestInterface
 {
     protected const STATUS_FORBIDDEN = 403;
 
+    protected const COOKIE = 'Cookie';
+
     /** @var GuzzleHttp\ClientInterface */
     protected $client;
 
@@ -77,9 +79,11 @@ class Sender implements RestInterface
 
         try {
             // Provider can throw ProviderException or CacheException (if it instance of it) so no reasons to catch them
-            $cookies = $this->provider->provide($this->config);
-            $response = $this->client->request($method, $uri, \array_merge([
-                GuzzleHttp\RequestOptions::COOKIES => $cookies
+            $sessionId = $this->provider->provide($this->config);
+            $response = $this->client->request($method, $uri, \array_merge_recursive([
+                GuzzleHttp\RequestOptions::HEADERS => [
+                    Sender::COOKIE => $sessionId,
+                ]
             ], $options));
         } catch (GuzzleHttp\Exception\GuzzleException $exception) {
             // Checking exception with hasResponse() is optional, but for better logic execution it must be here
@@ -91,9 +95,10 @@ class Sender implements RestInterface
             ) {
                 try {
                     // CacheProvider can throw ProviderException or CacheException so no reasons to catch them
-                    $cookies = $this->provider->forceProvide($this->config);
-                    $response = $this->client->request($method, $uri, \array_merge([
-                        GuzzleHttp\RequestOptions::COOKIES => $cookies
+                    $response = $this->client->request($method, $uri, \array_merge_recursive([
+                        GuzzleHttp\RequestOptions::HEADERS => [
+                            Sender::COOKIE => $this->provider->forceProvide($this->config)
+                        ]
                     ], $options));
                 } catch (GuzzleHttp\Exception\GuzzleException $exception) {
                     throw new Exception("Api [$api] with force auth failed", $exception->getCode(), $exception);
@@ -106,6 +111,13 @@ class Sender implements RestInterface
         return $this->parseResponse($response, $api);
     }
 
+    /**
+     * @param ResponseInterface $response
+     * @param string $rest
+     *
+     * @return array
+     * @throws Exception
+     */
     private function parseResponse(ResponseInterface $response, string $rest): array
     {
         // In Phonet documentation only `hangup` api (get-method) contain empty body in response
