@@ -10,6 +10,8 @@ use Carbon\Carbon;
  */
 class Repository
 {
+    public const SYSTEM = 'system';
+
     protected const UUID = 'uuid';
     protected const EMPLOYEE_NUMBER = 'ext';
     protected const CALLER = 'leg';
@@ -209,13 +211,15 @@ class Repository
         return new Call\Complete\Collection(\array_map(function (array $call): Call\Complete {
             $caller = $call[static::CALLER];
             $employeeCallTaker = $call[static::EMPLOYEE_CALL_TAKER];
+            $employeeNumber = $caller[static::EMPLOYEE_NUMBER] ?? static::SYSTEM;
+            $employeeCallTakerNumber = $employeeCallTaker[static::EMPLOYEE_NUMBER] ?? static::SYSTEM;
 
             return new Call\Complete(
                 $call[static::UUID],
                 new Call\Direction($call[static::DIRECTION]),
                 new Employee(
                     $caller[static::ID],
-                    $caller[static::EMPLOYEE_NUMBER],
+                    $employeeNumber,
                     $caller[static::DISPLAY_NAME],
                     $caller[static::TYPE]
                 ),
@@ -227,7 +231,7 @@ class Repository
                 !\is_null($employeeCallTaker)
                     ? new Employee(
                         $employeeCallTaker[static::ID],
-                        $employeeCallTaker[static::EMPLOYEE_NUMBER],
+                        $employeeCallTakerNumber,
                         $employeeCallTaker[static::DISPLAY_NAME],
                         $employeeCallTaker[static::TYPE]
                     )
