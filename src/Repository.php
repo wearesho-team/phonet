@@ -10,8 +10,6 @@ use Carbon\Carbon;
  */
 class Repository
 {
-    public const SYSTEM = 'system';
-
     protected const UUID = 'uuid';
     protected const EMPLOYEE_NUMBER = 'ext';
     protected const CALLER = 'leg';
