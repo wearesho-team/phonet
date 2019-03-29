@@ -211,16 +211,14 @@ class Repository
         return new Call\Complete\Collection(\array_map(function (array $call): Call\Complete {
             $caller = $call[static::CALLER];
             $employeeCallTaker = $call[static::EMPLOYEE_CALL_TAKER];
-            $employeeNumber = $caller[static::EMPLOYEE_NUMBER] ?? static::SYSTEM;
-            $employeeCallTakerNumber = $employeeCallTaker[static::EMPLOYEE_NUMBER] ?? static::SYSTEM;
 
             return new Call\Complete(
                 $call[static::UUID],
                 new Call\Direction($call[static::DIRECTION]),
                 new Employee(
-                    $caller[static::ID],
-                    $employeeNumber,
-                    $caller[static::DISPLAY_NAME],
+                    (int)$caller[static::ID],
+                    (string)$caller[static::EMPLOYEE_NUMBER],
+                    (string)$caller[static::DISPLAY_NAME],
                     $caller[static::TYPE]
                 ),
                 Carbon::createFromTimestamp($call[static::END_AT]),
@@ -230,9 +228,9 @@ class Repository
                 \array_key_exists(static::PARENT_UUID, $call) ? $call[static::PARENT_UUID] : null,
                 !\is_null($employeeCallTaker)
                     ? new Employee(
-                        $employeeCallTaker[static::ID],
-                        $employeeCallTakerNumber,
-                        $employeeCallTaker[static::DISPLAY_NAME],
+                        (int)$employeeCallTaker[static::ID],
+                        (string)$employeeCallTaker[static::EMPLOYEE_NUMBER],
+                        (string)$employeeCallTaker[static::DISPLAY_NAME],
                         $employeeCallTaker[static::TYPE]
                     )
                     : null,
