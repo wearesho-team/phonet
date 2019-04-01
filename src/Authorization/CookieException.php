@@ -10,6 +10,8 @@ use Wearesho\Phonet\Exception;
  */
 class CookieException extends Exception
 {
+    public const COOKIE_UNAVAILABLE = -1;
+
     /** @var array */
     protected $headers;
 

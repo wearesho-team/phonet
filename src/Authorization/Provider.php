@@ -11,8 +11,6 @@ use Wearesho\Phonet\ConfigInterface;
  */
 class Provider implements ProviderInterface
 {
-    public const COOKIE_UNAVAILABLE = -1;
-
     protected const COOKIES = 'Set-Cookie';
 
     /** @var GuzzleHttp\ClientInterface */
@@ -65,7 +63,7 @@ class Provider implements ProviderInterface
             throw new CookieException(
                 $headers,
                 'Failed fetch cookies from headers. Available headers: [' . \implode(',', \array_keys($headers)) . ']',
-                static::COOKIE_UNAVAILABLE
+                CookieException::COOKIE_UNAVAILABLE
             );
         }
 
