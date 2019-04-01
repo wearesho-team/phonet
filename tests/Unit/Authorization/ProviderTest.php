@@ -67,4 +67,18 @@ class ProviderTest extends TestCase
 
         $this->assertEquals('JSESSIONID=test-id', $cookies);
     }
+
+    public function testProvideWithInvalidCookies(): void
+    {
+        $this->mock->append(
+            new GuzzleHttp\Psr7\Response(200, [
+                'Invalid' => null
+            ])
+        );
+
+        $this->expectException(Phonet\Authorization\ProviderException::class);
+
+        /** @noinspection PhpUnhandledExceptionInspection */
+        $this->fakeProvider->provide($this->config);
+    }
 }
