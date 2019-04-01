@@ -69,7 +69,7 @@ class TestCase extends Phonet\Tests\Unit\Api\TestCase
 
         $this->assertEquals("d267486f-a539-45dd-c5f5-e735a5870b80", $missedCall->getParentUuid());
         $this->assertEquals("f457486f-a539-45dd-c5f5-e735a5870b92", $missedCall->getUuid());
-        $this->assertEquals(1435319298470, $missedCall->getEndAt()->timestamp);
+        $this->assertEquals(1435319298, $missedCall->getEndAt()->timestamp);
         $this->assertEquals(Phonet\Call\Direction::INTERNAL(), $missedCall->getDirection());
         $this->assertNull($missedCall->getSubjectName());
         $this->assertNull($missedCall->getSubjectNumber());
