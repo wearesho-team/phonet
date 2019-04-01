@@ -59,20 +59,17 @@ class Provider implements ProviderInterface
      */
     private function fetchSessionId(array $headers): string
     {
-        try {
-            $cookieHeader = $headers[Provider::COOKIES];
-            $cookies = \explode('; ', \array_shift($cookieHeader));
-
-            return \array_shift($cookies);
-        } catch (\Throwable $exception) {
+        if (!array_key_exists(Provider::COOKIES, $headers)) {
             throw new CookieException(
                 $headers,
-                'Failed fetch cookies from headers: '
-                . $exception->getMessage() . PHP_EOL
-                . 'Available headers: ' . implode(array_keys($headers)),
-                $exception->getCode(),
-                $exception
+                'Failed fetch cookies from headers. Available headers: [' . \implode(',', \array_keys($headers)) . ']',
+                CookieException::COOKIE_UNAVAILABLE
             );
         }
+
+        $cookieHeader = $headers[Provider::COOKIES];
+        $cookies = \explode('; ', \array_shift($cookieHeader));
+
+        return \array_shift($cookies);
     }
 }
