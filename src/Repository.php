@@ -214,9 +214,9 @@ class Repository
                 $call[static::UUID],
                 new Call\Direction($call[static::DIRECTION]),
                 new Employee(
-                    $caller[static::ID],
-                    $caller[static::EMPLOYEE_NUMBER],
-                    $caller[static::DISPLAY_NAME],
+                    (int)$caller[static::ID],
+                    (string)$caller[static::EMPLOYEE_NUMBER],
+                    (string)$caller[static::DISPLAY_NAME],
                     $caller[static::TYPE]
                 ),
                 Carbon::createFromTimestampMs($call[static::END_AT]),
@@ -226,9 +226,9 @@ class Repository
                 \array_key_exists(static::PARENT_UUID, $call) ? $call[static::PARENT_UUID] : null,
                 !\is_null($employeeCallTaker)
                     ? new Employee(
-                        $employeeCallTaker[static::ID],
-                        $employeeCallTaker[static::EMPLOYEE_NUMBER],
-                        $employeeCallTaker[static::DISPLAY_NAME],
+                        (int)$employeeCallTaker[static::ID],
+                        (string)$employeeCallTaker[static::EMPLOYEE_NUMBER],
+                        (string)$employeeCallTaker[static::DISPLAY_NAME],
                         $employeeCallTaker[static::TYPE]
                     )
                     : null,
