@@ -43,24 +43,36 @@ class Provider implements ProviderInterface
         );
 
         try {
-            $response = $this->client->send($request);
-        } catch (GuzzleHttp\Exception\GuzzleException $exception) {
+            return $this->fetchSessionId(
+                $this->client->send($request)->getHeaders()
+            );
+        } catch (GuzzleHttp\Exception\GuzzleException | CookieException $exception) {
             throw new ProviderException($domain, $exception->getMessage(), $exception->getCode(), $exception);
         }
-
-        return $this->fetchSessionId($response->getHeaders());
     }
 
     /**
      * @param array $headers
      *
      * @return string
+     * @throws CookieException
      */
     private function fetchSessionId(array $headers): string
     {
-        $cookieHeader = $headers[Provider::COOKIES];
-        $cookies = \explode('; ', \array_shift($cookieHeader));
+        try {
+            $cookieHeader = $headers[Provider::COOKIES];
+            $cookies = \explode('; ', \array_shift($cookieHeader));
 
-        return \array_shift($cookies);
+            return \array_shift($cookies);
+        } catch (\Throwable $exception) {
+            throw new CookieException(
+                $headers,
+                'Failed fetch cookies from headers: '
+                . $exception->getMessage() . PHP_EOL
+                . 'Available headers: ' . implode(array_keys($headers)),
+                $exception->getCode(),
+                $exception
+            );
+        }
     }
 }
