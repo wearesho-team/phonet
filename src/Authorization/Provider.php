@@ -64,7 +64,7 @@ class Provider implements ProviderInterface
         if (!array_key_exists(Provider::COOKIES, $headers)) {
             throw new CookieException(
                 $headers,
-                'Failed fetch cookies from headers. Available headers: ' . \implode(\array_keys($headers)),
+                'Failed fetch cookies from headers. Available headers: [' . \implode(',', \array_keys($headers)) . ']',
                 static::COOKIE_UNAVAILABLE
             );
         }
